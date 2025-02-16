@@ -1,1 +1,1 @@
-Repository of the models architecture and history of the learning curves
+Repository of the models architecture and history of the learning curves. Models are trained using std_transf(energy, norm_vol), 10x10 images and the observed solar nu spectrum
