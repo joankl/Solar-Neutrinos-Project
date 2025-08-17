@@ -157,7 +157,6 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
         evtid[0] = rEV.GetGTID()
         
         
-        
         '''
         There is a subtlety here that was not considered yet
         A single event can actually lead to multiple vertices
@@ -276,8 +275,8 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
 
 
 if __name__ == "__main__":
-  read_dir = '/lstore/sno/joankl/solar_analysis/main_simulations/solar_Nue/Nue_simulation/'
-  file_txt_dir = '/lstore/sno/joankl/solar_analysis/main_simulations/solar_Nue/solar_coincidence_analysis/file_name_list/sublist_0.txt'
-  save_dir = '/lstore/sno/joankl/solar_analysis/real_data/proof/'
+  read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/solar_Nue/Nue_simulation_data/'
+  file_txt_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/solar_Nue/file_name_list/sublist_0.txt'
+  save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/solar_Nue/proof/'
   file_out_name = 'xMC.root'
   extract_data(read_dir, file_txt_dir, save_dir, file_out_name)

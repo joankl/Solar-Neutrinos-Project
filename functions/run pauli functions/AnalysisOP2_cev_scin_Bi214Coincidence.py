@@ -263,44 +263,35 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
           #Energy condition to enter to the analysis coincidence due to a suspected Bi214:
           if (fEnergy >= energy_inf_cut) and (fEnergy <= Bi_214_max_energy):
 
-            print('Performing BiPo214 Coincidence Analysis ')
+            prompt_GTID = rEV.GetGTID()
 
-            prompt_iev = iev
-            print(f'prompt ev index = {prompt_iev}')
-
-            rEV_prompt = rDS.GetEV(prompt_iev)
+            print('Performing BiPo214 Coincidence Analysis')
+            print('Actual Prompt GTID = ', prompt_GTID)
             
             #extract the quantities for the prompt
-            t1 = (rEV_prompt.GetClockCount50()*20)*10**(-6)  #Transform from ns to ms
+            t1 = (rEV.GetClockCount50()*20)*10**(-6)  #Transform from ns to ms
             x1 = fPosition.x()
             y1 = fPosition.y()
             z1 = fPosition.z()
 
-            #initialize the quantities of the delayed as zeroes
             dt = 0
             dr = 0
 
-            delay_iev = iev + 1
+            delay_ievent = ievent + 1
+
+            found = False
+
+            print('Getting in while loop within dt window')
             while dt >= 0 and dt <= dt_window:
 
-              print('In while loop dt window')
-              print(f'delay ev index = {delay_iev}')
-
-              rDS_delay = reader.GetEntry(delay_iev)
-
-              #if delay_iev < rDS_delay.GetEVCount():
-              #    rEV_delay = rDS_delay.GetEV(delay_iev)
-              #else:
-              #    print(f"Índice inválido: delay_iev={delay_iev}, EVCount={rDS_delay.GetEVCount()}")
-              #    continue  # o return, o lo que tenga sentido en tu flujo
+              rDS_delay = reader.GetEntry(delay_ievent)
 
               for iev_delay in range(0, rDS_delay.GetEVCount()):
-
                 rEV_delay = rDS_delay.GetEV(iev_delay)
-                print(f'GTID of Prompt {rEV_prompt.GetGTID()}')
-                print(f'GTID of Delay {rEV_delay.GetGTID()}')
+                print('Actual Delay GTID = ', rEV_delay.GetGTID())
 
                 # Ensure the validity of the Delay event:
+
                 # Correct Data-Cleanning Flag
                 dataCleanFlag = rEV_delay.GetDataCleaningFlags()
                 flag_index = dataCleanFlag.GetLatestPass()
@@ -310,30 +301,30 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
                 #validity of existing quantities and scintFitter result on the delay event:
                 print('testing the validity of the data ...')
                 if not (dcflag_condition):
-                  delay_iev += 1
+                  delay_ievent += 1
                   continue
 
                 n_vtx = 0
                 if not(rEV_delay.FitResultExists("scintFitter")):
-                  delay_iev += 1
+                  delay_ievent += 1
                   continue
 
                 fResult_delay = rEV_delay.GetFitResult("scintFitter")
 
                 if not fResult_delay.GetValid():
-                  delay_iev += 1
+                  delay_ievent += 1
                   continue
 
                 # Check that there is at least one reconstructed vertex
                 if fResult_delay.GetVertexCount() < 1:
-                  delay_iev += 1
+                  delay_ievent += 1
                   continue
 
                 for ivtx in range(0,fResult_delay.GetVertexCount()):
                   fVertex_delay = fResult_delay.GetVertex(ivtx)
 
                   if not(fVertex_delay.ContainsPosition() and fVertex_delay.ContainsEnergy() and fVertex_delay.ValidPosition() and fVertex_delay.ValidEnergy()):
-                    delay_iev += 1
+                    delay_ievent += 1
                     continue
                   else:
                     n_vtx = n_vtx + 1
@@ -348,7 +339,7 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
                   print(f'Energy of the delay {fEnergy_delay} (MeV)')
                   if (fEnergy_delay < Po_214_min_energy) or (fEnergy_delay > Po_214_max_energy):
                     print('Delay energy out of range.')
-                    delay_iev += 1
+                    delay_ievent += 1
                     continue
 
                   print('performing computation of dt_delay and dr_delay')
@@ -377,12 +368,20 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
                   #Condition to save the suspected GTID of the prompt and get out of while
                   if (dt > 0 and dt <= dt_window) and (dr >= 0 and dr <= dr_window):
                     print(f'Pair of Coincidences found with dt = {dt} (ms) and dr = {dr} (mm)')
-                    evtid_bi214[0] = rEV_prompt.GetGTID()
+                    print(f'Pairs with Prompt Bi214 GTID = {prompt_GTID} and Delay Po214 GTID = {rEV_delay.GetGTID()}')
+                    evtid_bi214[0] = prompt_GTID
+                    found = True
                     break
 
                   else:
                     print(f'Incompatible Delay with {dt} (ms) and {dr} (mm). Going for the next one.')
-                    delay_iev += 1
+                    delay_ievent += 1
+
+                if found:
+                  break
+
+              if found:
+                break
 
           #print('Out of BiPo214 Coincidence Analysis.')
 
@@ -394,7 +393,7 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
           evt_pos[1] = fPosition.y()
           evt_pos[2] = fPosition.z()
 
-          print('ev_position:', evt_pos)
+          #print('ev_position:', evt_pos)
 
           evt_pos_Pos_err[0] = fPosPositionErr.x()
           evt_pos_Pos_err[1] = fPosPositionErr.y()
@@ -407,8 +406,8 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
           #print('evt_neg_Pos_err:', evt_neg_Pos_err)
 
           #print('file:', input_file_i)
-          print('event Energy', fEnergy)
-          print('GTID', evtid[0])
+          #print('event Energy', fEnergy)
+          #print('GTID', evtid[0])
        
           evt_en[0] = fEnergy
           #evt_pos_en_err[0] = fVertex.GetPositiveEnergyError()
@@ -426,18 +425,18 @@ def extract_data(read_dir, file_txt_dir, save_dir, file_out_name):
 
           #Data Cleanning dcFlag
           dc_flag[0] = dataCleanFlag.GetFlags(flag_index).GetULong64_t(0)
-          print('dcFlagged:', dc_flag[0])
+          #print('dcFlagged:', dc_flag[0])
 
           #Number of neck hits        
           neck_nhit_pmt[0] = uncalPMTs.GetNeckCount()
 
           #clockCount50
-          print(f'clockCount50 of event {rEV.GetClockCount50()}')
+          #print(f'clockCount50 of event {rEV.GetClockCount50()}')
           clockCount50[0] = rEV.GetClockCount50()
 
           ev_counter+= 1
 
-          print('ev_counter: ', ev_counter)
+          #print('ev_counter: ', ev_counter)
 
           #print('neckHit:', necknhit_pmt[0])
         # normalized position vector
