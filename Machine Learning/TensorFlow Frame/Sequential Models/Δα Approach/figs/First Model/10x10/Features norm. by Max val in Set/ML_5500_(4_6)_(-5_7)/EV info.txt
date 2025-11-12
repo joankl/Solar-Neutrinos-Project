@@ -1,0 +1,6 @@
+Energy: [4,6] MeV
+Rad cut: r<5500 mm
+
+Nº de eventos (after cut):
+solar nu =
+tl = 

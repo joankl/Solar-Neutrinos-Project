@@ -1,6 +1,0 @@
-Number of events
-solar nu = 67482
-tl = 59843
-
-Energy: [2,4] MeV
-Rad cut: r<5500 mm
