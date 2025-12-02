@@ -1,0 +1,8 @@
+1) Δα Distribution - 5 MeV - evID = 3 - Imagen del Evento
+2) HS_Norm_Δα(10x10)_5MeV - Likelihood de alta estatistica
+3) HS_Norm_Δα(10x10)_5MeV - Likelihood del evento
+4)Boost on ROI - 5MeV - evID = 3 - Amplificación de la lilekilhood del evnto en ROI por el producto de likelihoods
+5)Template Image - 5 MeV - evID = 3 - template que será usado para pattern recognition
+
+Primero, sera hecho el pattern recognition en 3), dando como resultado la imagen 6) Δα Distribution - Pattern Identification - 5 MeV - evID = 3 con la region de identificación (fuera de ROI!).
+Luego, será hecho el patter recognition usando el boos 4) y observada la region de  identificacion en 7) Pattern Identification in Boosted Δα distribution - evID = 3 - 5 MeV, que esta en la region espacial de interes pero muy adelantado en tiempo.
