@@ -1,59 +1,13 @@
-# --- Archivos de Python ---
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.so
+# Ignore the Push and Pull of the following format files
 
-# --- Archivos temporales de Jupyter ---
-.ipynb_checkpoints/
-*.ipynb_checkpoints
-
-# --- Archivos grandes de datos ---
-*.npy
-*.npz
-*.csv
-*.h5
-*.hdf5
-*.pkl
-*.mat
-
-# --- Archivos de entorno virtual ---
-venv/
-.env/
-.venv/
-ENV/
-env/
-*.env
-*.envrc
-
-# --- Archivos de sistema ---
-.DS_Store
-Thumbs.db
-
-# --- Logs y temporales ---
-*.log
-*.tmp
-*.swp
-*.bak
-
-# --- Archivos de IDEs ---
-.vscode/
-.idea/
-*.iml
-
-
-# Archivos de imágenes y videos
-*.jpg
-*.jpeg
 *.png
-*.gif
-*.bmp
-*.tiff
-*.tif
-*.svg
-*.mp4
-*.avi
-*.mov
-*.mkv
+*.npy
 
+*.root
+*.csv
+
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+venv/
+.env
