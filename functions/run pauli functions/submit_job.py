@@ -35,7 +35,7 @@ for i_dx, file_i in enumerate(f_list):
 
 	fname = os.path.basename(file_i)
 	fname = os.path.splitext(fname)[0]  # Selected filename without format extention. Exm: ('fname', '.root')
-	output_i = save_dir + 'fname' + f'_runevelist_{i_dx}.root' # save_dir + output_file name
+	output_i = save_dir + fname + f'_runevelist_{i_dx}.root' # save_dir + output_file name
 
 	# ------- Define the code to be executed on each job -------
 
@@ -51,9 +51,9 @@ for i_dx, file_i in enumerate(f_list):
 
 	# Script Content
 	script_content = f"""#!/bin/bash
-#SBATCH --job-name={data_type}_{sublist_index}
-#SBATCH --output=logs_{data_type}/job_{sublist_index}.out
-#SBATCH --error=logs_{data_type}/job_{sublist_index}.err
+#SBATCH --job-name={data_type}_{i_dx}
+#SBATCH --output=logs_{data_type}/job_{i_dx}.out
+#SBATCH --error=logs_{data_type}/job_{i_dx}.err
 #SBATCH --partition=lipq
 
 echo "Running on host: $(hostname)"
@@ -74,7 +74,7 @@ echo "Starting Container..."
 	    f.write(script_content)
 
 	# Enviar a la cola
-	print(f"Enviando job {sublist_index}...")
+	print(f"Enviando job {i_dx}...")
 	os.system(f"sbatch {script_name}")
 
 	# Borrar el script generado para no llenar la carpeta de basura (opcional)
