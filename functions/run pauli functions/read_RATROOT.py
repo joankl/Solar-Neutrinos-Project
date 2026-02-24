@@ -178,8 +178,6 @@ def extract_data(read_dir, save_dir):
 	write_pmt_info(fout)
 	fout.Close()
 
-# It needs to implement the energy callibrator of Daniel!
-
 if __name__ == "__main__":
 	read_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_selection/ratds_data/Analysis20_bMR_r0000358052_s002_p005_runevelist_42.root'
 	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/test/'
