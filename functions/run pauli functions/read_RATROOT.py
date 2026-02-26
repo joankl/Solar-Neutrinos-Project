@@ -112,7 +112,7 @@ def extract_data(read_dir, save_dir):
 	util.LoadDBAndBeginRun()
 
 	# Sun Direction Function
-	SunDir = rat.RAT.SunDirection()
+	SunDir = rat.RAT.SunDirection
 
 	# Energy Callibrator Definitions 
 	print ('Takinkg Energy Calibrator Tool')
