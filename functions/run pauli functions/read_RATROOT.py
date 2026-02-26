@@ -3,6 +3,8 @@ Python script designed to read a RATDS ROOT file
 and extract observables of interest. For now, the script
 doesn't perform any analysis/cuts on the data. It will read 
 data already analized and save RATDS observables.
+This script assumes already processed RATDS! It uses known
+reconstructe events, so doesnt employs fit checks
 """
 
 import rat
@@ -71,6 +73,8 @@ def extract_data(read_dir, save_dir):
 	fout.cd()
 
 	# ====== Define the Branches of the output event data TTree ======
+
+	print('creating TTree Branches')
 	tree = ROOT.TTree("T", "output_summary")
 
 	energy = array('d', [0.0])
@@ -108,9 +112,10 @@ def extract_data(read_dir, save_dir):
 	util.LoadDBAndBeginRun()
 
 	# Sun Direction Function
-	SunDir = rat.RAT.SunDirection
+	SunDir = rat.RAT.SunDirection()
 
 	# Energy Callibrator Definitions 
+	print ('Takinkg Energy Calibrator Tool')
 	calibrator = util.GetReconCalibrator()
 	MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
 	CORRECTION_VER = 3   # VER = 2 for bisMSB data/MC
@@ -119,11 +124,15 @@ def extract_data(read_dir, save_dir):
 	av_id = P3D.GetSystemId("av")
 
 	# ====== Reading file root info ======
+	print('Getting in reader ...')
 	reader = ROOT.RAT.DU.DSReader(read_dir)
-	print(f'reader here: {reader}')
+	print(f'reader here: {reader}', flush=True)
+
+	num_entries = reader.GetTree().GetEntries()
+	print(f'Total entries in file: {num_entries}')
 
 	# Loop on entries in root file
-	for ievent in range(0, reader.GetEntryCount()):
+	for ievent in range(0, int(num_entries)):
 		print(f'reading root file at entry {ievent}')
 		rDS = reader.GetEntry(ievent)
 
@@ -134,7 +143,7 @@ def extract_data(read_dir, save_dir):
 			# Select the Getters
 			rEV = rDS.GetEV(iev) # EV Brach
 			fResult = rEV.GetFitResult("scintFitter")           # Fitter Branch
-			fPosition = fResult.GetVertex(ivtx).GetPosition()
+			fPosition = fResult.GetVertex(0).GetPosition()      # Use the first fitted position
 			calibratedPMTs = rEV.GetCalPMTs()                   # PMTs Brach
 			rTime = rEV.GetUniversalTime()                      # Event Time Branch
 
@@ -154,7 +163,11 @@ def extract_data(read_dir, save_dir):
 			evt_time_nsec[0] = rTime.GetNanoSeconds()
 
 			# Compute Sun Direction
-			sun_dir = SunDir(rTime.GetDays(), rTime.GetSeconds(), rTime.GetNanoSeconds())
+			sun_dir_vector = SunDir(rTime.GetDays(), rTime.GetSeconds(), rTime.GetNanoSeconds())
+
+			sun_dir[0] = sun_dir_vector.X()
+			sun_dir[1] = sun_dir_vector.Y()
+			sun_dir[2] = sun_dir_vector.Z()
 
 			# Reconstructed Energy
 			for ivtx in range(0, fResult.GetVertexCount()): 
@@ -180,7 +193,7 @@ def extract_data(read_dir, save_dir):
 	fout.Close()
 
 if __name__ == "__main__":
-	read_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_selection/ratds_data/Analysis20_bMR_r0000358052_s002_p005_runevelist_42.root'
+	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/run_evlist/Analysis20_bMR_r0000358052_s002_p005_runevelist_42.root'
 	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/test/'
 	file_out_name = 'x.root'
 	extract_data(read_dir, save_dir + file_out_name)
