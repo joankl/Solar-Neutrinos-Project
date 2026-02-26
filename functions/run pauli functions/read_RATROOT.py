@@ -9,8 +9,6 @@ import rat
 import ROOT
 from array import array
 
-fdir_load = ''
-fdir_save = ''
 
 def extract_data(read_dir, save_dir):
 
@@ -122,13 +120,16 @@ def extract_data(read_dir, save_dir):
 
 	# ====== Reading file root info ======
 	reader = ROOT.RAT.DU.DSReader(read_dir)
+	print(f'reader here: {reader}')
 
 	# Loop on entries in root file
 	for ievent in range(0, reader.GetEntryCount()):
+		print(f'reading root file at entry {ievent}')
 		rDS = reader.GetEntry(ievent)
 
 		# Loop on each triggered event in the entry
 		for iev in range(0, rDS.GetEVCount()):
+			print(f'reading triggered event at entry {iev}')
 
 			# Select the Getters
 			rEV = rDS.GetEV(iev) # EV Brach
