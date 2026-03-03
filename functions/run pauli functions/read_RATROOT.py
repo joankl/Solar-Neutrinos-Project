@@ -115,13 +115,13 @@ def extract_data(read_dir, save_dir):
 	SunDir = rat.RAT.SunDirection
 
 	# Energy Callibrator Definitions 
-	print ('Takinkg Energy Calibrator Tool')
-	calibrator = util.GetReconCalibrator()
-	MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
-	CORRECTION_VER = 3   # VER = 2 for bisMSB data/MC
-	IS_DATA = True   # False if MC
-	P3D = ROOT.RAT.DU.Point3D
-	av_id = P3D.GetSystemId("av")
+	#print ('Takinkg Energy Calibrator Tool')
+	#calibrator = util.GetReconCalibrator()
+	#MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
+	#CORRECTION_VER = 3   # VER = 2 for bisMSB data/MC
+	#IS_DATA = True   # False if MC
+	#P3D = ROOT.RAT.DU.Point3D
+	#av_id = P3D.GetSystemId("av")
 
 	# ====== Reading file root info ======
 	print('Getting in reader ...')
