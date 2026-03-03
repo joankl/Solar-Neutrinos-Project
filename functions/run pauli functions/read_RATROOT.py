@@ -132,7 +132,7 @@ def extract_data(read_dir, save_dir):
 	print(f'Total entries in file: {num_entries}')
 
 	# Loop on entries in root file
-	for ievent in range(0, int(num_entries)):
+	for ievent in range(0, reader.GetEntryCount()):
 		print(f'reading root file at entry {ievent}')
 		rDS = reader.GetEntry(ievent)
 
