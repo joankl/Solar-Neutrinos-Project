@@ -160,7 +160,7 @@ def extract_data(read_dir, save_dir):
 			evt_time_nsec[0] = rTime.GetNanoSeconds()
 
 			# Compute Sun Direction
-			sun_dir_vector = SunDir(rTime.GetDays(), rTime.GetSeconds(), rTime.GetNanoSeconds())
+			sun_dir_vector = SunDir(int(rTime.GetDays()), int(rTime.GetSeconds()), int(rTime.GetNanoSeconds()))
 
 			sun_dir[0] = sun_dir_vector.X()
 			sun_dir[1] = sun_dir_vector.Y()
