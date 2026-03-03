@@ -128,9 +128,6 @@ def extract_data(read_dir, save_dir):
 	reader = ROOT.RAT.DU.DSReader(read_dir)
 	print(f'reader here: {reader}', flush=True)
 
-	num_entries = reader.GetTree().GetEntries()
-	print(f'Total entries in file: {num_entries}')
-
 	# Loop on entries in root file
 	for ievent in range(0, reader.GetEntryCount()):
 		print(f'reading root file at entry {ievent}')
