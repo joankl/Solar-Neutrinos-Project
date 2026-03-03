@@ -80,8 +80,8 @@ def extract_data(read_dir, save_dir):
 	energy = array('d', [0.0])
 	tree.Branch('energy', energy, 'energy/D')
 
-	energy_corr = array('d', [0.0])
-	tree.Branch('energy_corr', energy_corr, 'energy_corr/D')
+	#energy_corr = array('d', [0.0])
+	#tree.Branch('energy_corr', energy_corr, 'energy_corr/D')
 
 	evtid = array('i',[0])
 	tree.Branch('evtid',evtid,'evtid/I')
@@ -155,7 +155,7 @@ def extract_data(read_dir, save_dir):
 			pos_xyz[1] = fPosition.y()
 			pos_xyz[2] = fPosition.z()
 
-			position = P3D(fPosition.x(), fPosition.y(), fPosition.z())
+			#position = P3D(fPosition.x(), fPosition.y(), fPosition.z())
 
 			# Reconstructed Time
 			evt_time_day[0] = rTime.GetDays() 
@@ -175,9 +175,9 @@ def extract_data(read_dir, save_dir):
 				energy[0] = fVertex.GetEnergy()
 				print(f'event energy: {energy[0]}')
 
-				energy_corr[0] = calibrator.CalibrateEnergyRTF(IS_DATA, fVertex.GetEnergy(), 
-					position, MATERIAL_NAME, CORRECTION_VER)
-				print(f'Corrected energy: {energy_corr[0]}')
+				#energy_corr[0] = calibrator.CalibrateEnergyRTF(IS_DATA, fVertex.GetEnergy(), 
+				#	position, MATERIAL_NAME, CORRECTION_VER)
+				#print(f'Corrected energy: {energy_corr[0]}')
 
 			# Loop over the hits
 			for iPMT in range(0, calibratedPMTs.GetAllCount()):
