@@ -167,10 +167,14 @@ def extract_data(read_dir, save_dir):
 			sun_dir[2] = sun_dir_vector.Z()
 
 			# Reconstructed Energy
-			for ivtx in range(0, fResult.GetVertexCount()): 
-				fVertex = fResult.GetVertex(ivtx)
-				energy[0] = fVertex.GetEnergy()
-				print(f'event energy: {energy[0]}')
+            fVertex = fResult.GetVertex(0)
+            energy[0] = fVertex.GetEnergy()
+            print(f'event energy: {energy[0]}')
+
+			#for ivtx in range(0, fResult.GetVertexCount()): 
+			#	fVertex = fResult.GetVertex(ivtx)
+			#	energy[0] = fVertex.GetEnergy()
+			#	print(f'event energy: {energy[0]}')
 
 				#energy_corr[0] = calibrator.CalibrateEnergyRTF(IS_DATA, fVertex.GetEnergy(), 
 				#	position, MATERIAL_NAME, CORRECTION_VER)
