@@ -167,9 +167,9 @@ def extract_data(read_dir, save_dir):
 			sun_dir[2] = sun_dir_vector.Z()
 
 			# Reconstructed Energy
-            fVertex = fResult.GetVertex(0)
-            energy[0] = fVertex.GetEnergy()
-            print(f'event energy: {energy[0]}')
+			fVertex = fResult.GetVertex(0)
+			energy[0] = fVertex.GetEnergy()
+			print(f'event energy: {energy[0]}')
 
 			#for ivtx in range(0, fResult.GetVertexCount()): 
 			#	fVertex = fResult.GetVertex(ivtx)
