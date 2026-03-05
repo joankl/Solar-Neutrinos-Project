@@ -4,12 +4,13 @@ and extract observables of interest. For now, the script
 doesn't perform any analysis/cuts on the data. It will read 
 data already analized and save RATDS observables.
 This script assumes already processed RATDS! It uses known
-reconstructe events, so doesnt employs fit checks
+reconstructe events, so doesnt employs fit checks or pile-up events!
 """
 
 import rat
 import ROOT
 from array import array
+import glob
 
 
 def extract_data(read_dir, save_dir):
@@ -193,11 +194,21 @@ def extract_data(read_dir, save_dir):
 	write_pmt_info(fout)
 	fout.Close()
 
+
 if __name__ == "__main__":
-	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/run_evlist/Analysis20_bMR_r0000358052_s002_p005_runevelist_42.root'
-	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/test/'
-	file_out_name = 'x.root'
-	extract_data(read_dir, save_dir + file_out_name)
+
+	#read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/run_evlist/Analysis20_bMR_r0000358052_s002_p005_runevelist_42.root'
+	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/run_evlist/*.root'
+	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_selection/ratds_data/'
+
+
+	flist = glob.glob(read_dir)
+
+	for i_dx, f_in in enumerate(flist):
+		print(f'reading file {f_in}')
+		file_out_name = f'analysis_ratds_sum_{i_dx}.root'
+		extract_data(f_in, save_dir + file_out_name)
+
 
 
 
