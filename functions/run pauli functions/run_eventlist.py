@@ -7,6 +7,8 @@ This script need RAT to be executed.
 """
 
 import subprocess
+import glob
+import os
 
 def execute_mac(fin_dir, fout_dir):
 
@@ -24,7 +26,16 @@ def execute_mac(fin_dir, fout_dir):
 
 if __name__ == "__main__":
 
-	fin_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/Analysis20_bMR_r0000354099_s014_p005.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/test/out.root'
+	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis15_bMR/ratds/'
+	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15_bMR/ratDS_selection/temp/'
 
-	execute_mac(fin_dir, fout_dir)
+	flist = glob.glob(read_dir + 'Analysis15_bMR*.root')
+
+	for i_dx, file_i in enumerate(flist):
+
+		print(f'reading file {file_i}')
+
+		fout_name = os.path.basename(file_i)
+		fout_name = os.path.splitext(fout_name)[0]  # Selected filename without format extention. Exm: ('fname', '.root')
+
+		execute_mac(file_i, save_dir + fout_name + f'_runevelist_{i_dx}.root')

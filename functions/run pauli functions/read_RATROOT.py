@@ -108,12 +108,22 @@ def extract_data(read_dir, save_dir):
 	hit_type = array('i',[0])
 	tree.Branch('hit_type',hit_type,'hit_type/I')
 
+	hit_residual = array('d',[0.])
+	tree.Branch('hit_residual',hit_residual,'hit_residual/D')
+
 	# ------ Load Utility Tools ------
 	util = rat.utility()
 	util.LoadDBAndBeginRun()
 
 	# Sun Direction Function
 	SunDir = rat.RAT.SunDirection
+
+	# Time residual calculator
+	timeResCalc = util.GetTimeResidualCalculator()
+
+	# Point3D with PSUP reference
+	P3D = ROOT.RAT.DU.Point3D
+	psup_id = P3D.GetSystemId("innerPMT") 
 
 	# Energy Callibrator Definitions 
 	#print ('Takinkg Energy Calibrator Tool')
@@ -181,12 +191,18 @@ def extract_data(read_dir, save_dir):
 				#	position, MATERIAL_NAME, CORRECTION_VER)
 				#print(f'Corrected energy: {energy_corr[0]}')
 
+			fVertexTime =fVertex.GetTime()
+			fit_pos_3d = P3D(psup_id, fPosition.x(), fPosition.y(), fPosition.z())
+			
 			# Loop over the hits
 			for iPMT in range(0, calibratedPMTs.GetAllCount()):
 				pmtCal = calibratedPMTs.GetAllPMT(iPMT)
 				pmtid = pmtCal.GetID()
+				pmttime =  pmtCal.GetTime()
 
+				residual = timeResCalc.CalcTimeResidual(pmtid,pmttime,fit_pos_3d,fVertexTime)
 				hit_pmtid[0] = pmtid
+				hit_residual[0] = residual
 
 				tree.Fill()
 

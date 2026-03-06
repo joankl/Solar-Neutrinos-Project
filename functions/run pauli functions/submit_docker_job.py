@@ -28,7 +28,7 @@ UDOCKER_EXEC = f'./udocker run --entrypoint="" --hostenv --bindhome {volume} rat
 UDOCKER_ENV = ('export UDOCKER_DIR="/lstore/sno/joankl/udocker_storage" &&'
 				'export UDOCKER_TMPDIR="/lstore/sno/joankl/udocker_tmp" &&') #Define directories for udocker to find the container within its network
 #MY_LIBS = "/lstore/sno/joankl/my_pylibs/" # Complementar python libraries
-SCRIPT_DIR = os.getcwd() # Return the current directory path, where the script and rat_read_ntuples.py are.
+SCRIPT_DIR = os.getcwd() # Return the current directory path, where the current scripts are.
 
 data_type = '15_bMR'
 os.makedirs(f'logs_{data_type}', exist_ok=True)
@@ -69,12 +69,7 @@ echo "Starting Container..."
 # Run udocker
 # Within the UDOCKER_EXEC is defined the directories to be readen for the analysis
 cd {CONTAINER_DIR}
-
-./udocker run --entrypoint="" --hostenv --bindhome \\
---volume=/lstore/sno/joankl/RAT/rat:/rat \\
---volume=/lstore/sno/joankl:/lstore/sno/joankl \\
---volume=/share:/share \\
-rat_final /bin/bash -c "{container_command}"
+{UDOCKER_EXEC} -c "{container_command}"
 
 echo "Job finished"
 """
