@@ -190,7 +190,6 @@ def extract_data(read_dir, save_dir):
 			if not rEV.FitResultExists("scintFitter"):
 				continue
 
-
 			fResult = rEV.GetFitResult("scintFitter")           # Fitter Branch
 			if not fResult.GetValid():
 				continue
@@ -212,15 +211,12 @@ def extract_data(read_dir, save_dir):
 				if fEnergy < energy_inf_cut:
 					continue
 
-
 				# ------- Fill Branches -------
 
 				# Reconstructed Position
 				pos_xyz[0] = fPosition.x() 
 				pos_xyz[1] = fPosition.y()
 				pos_xyz[2] = fPosition.z()
-
-				#position = P3D(fPosition.x(), fPosition.y(), fPosition.z())
 
 				# Reconstructed Time
 				rTime = rEV.GetUniversalTime()                      # Event Time Branch
@@ -243,7 +239,6 @@ def extract_data(read_dir, save_dir):
 				positionP3D = P3D(av_id, pos_xyz[0], pos_xyz[1], pos_xyz[2])
 				energy_correction = calibrator.CalibrateEnergyRTF(IS_DATA, energy[0], positionP3D, MATERIAL_NAME, CORRECTION_VER)
 				energy_corr[0] = energy_correction
-
 
 				fVertexTime =fVertex.GetTime()
 				fit_pos_3d = P3D(psup_id, fPosition.x(), fPosition.y(), fPosition.z())
