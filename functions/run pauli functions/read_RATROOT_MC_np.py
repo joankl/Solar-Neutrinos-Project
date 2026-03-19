@@ -13,7 +13,7 @@ The script employs the pile-up analysis on MC through VertexCount
 
 import rat
 import ROOT
-from array import array
+import numpy as np
 import glob
 
 
@@ -47,16 +47,16 @@ def extract_data(read_dir, save_dir):
 		# PMT TTree
 		tpmt = ROOT.TTree("pmt","PMT information")
 
-		pmt_id = array('i',[0])
+		pmt_id = np.array([0], dtype = np.int64)
 		tpmt.Branch('pmt_id',pmt_id,'pmt_id/I')
 
-		pmt_pos_xyz = array('d',3*[0.0])
+		pmt_pos_xyz = np.array([0.0, 0.0, 0.0], dtype = np.float64)
 		tpmt.Branch('pmt_pos_xyz',pmt_pos_xyz,'pmt_pos_xyz[3]/D')
 
-		pmt_pos_sph = array('d',3*[0.0])
+		pmt_pos_sph = np.array([0.0, 0.0, 0.0], dtype = np.float64)
 		tpmt.Branch('pmt_pos_sph',pmt_pos_sph,'pmt_pos_sph[3]/D')
 
-		pmt_type = array('i',[0])
+		pmt_type = np.array([0], dtype = np.int64)
 		tpmt.Branch('pmt_type',pmt_type,'pmt_type/I')
 
 		for i_pmt in range(0,pmtinfo.GetCount()):
@@ -82,49 +82,49 @@ def extract_data(read_dir, save_dir):
 	print('creating TTree Branches')
 	tree = ROOT.TTree("T", "output_summary")
 
-	energy = array('d', [0.0])
+	energy = np.array([0.0], dtype = np.float64)
 	tree.Branch('energy', energy, 'energy/D')
 
-	energy_mc = array('d', [0.0])
+	energy_mc = np.array([0.0], dtype = np.float64)
 	tree.Branch('energy_mc', energy_mc, 'energy_mc/D')
 
-	energy_corr = array('d', [0.0])
-	tree.Branch('energy_corr', energy_corr, 'energy_corr/D')
+	#energy_corr = array('d', [0.0])
+	#tree.Branch('energy_corr', energy_corr, 'energy_corr/D')
 
-	evtid = array('i',[0])
+	evtid = np.array([0], dtype = np.int64)
 	tree.Branch('evtid',evtid,'evtid/I')
 
-	mcid = array('i',[0])
+	mcid = np.array([0], dtype = np.int64)
 	tree.Branch('mcid',mcid,'mcid/I')
 
-	pos_xyz = array('d',3*[0.0])
+	pos_xyz = np.array([0.0, 0.0, 0.0], dtype = np.float64)
 	tree.Branch('position',pos_xyz, 'position[3]/D')
 
-	pos_xyz_mc = array('d',3*[0.0])
+	pos_xyz_mc = np.array([0.0, 0.0, 0.0], dtype = np.float64)
 	tree.Branch('position_mc',pos_xyz, 'position_mc[3]/D')
 
-	sun_dir = array('d',3*[0.0])
+	sun_dir = np.array([0.0, 0.0, 0.0], dtype = np.float64)
 	tree.Branch('sun_dir',sun_dir, 'sun_dir[3]/D')
 
-	momentum_mc = array('d',3*[0.0])
+	momentum_mc = np.array([0.0, 0.0, 0.0], dtype = np.float64)
 	tree.Branch('momentum_mc',momentum_mc, 'momentum_mc[3]/D')
 
-	evt_time_day = array('d', [0.0]) 
+	evt_time_day = np.array([0.0], dtype = np.float64)
 	tree.Branch('evt_time_day',evt_time_day, 'evt_time_day/D')
 
-	evt_time_sec = array('d', [0.0])
+	evt_time_sec = np.array([0.0], dtype = np.float64)
 	tree.Branch('evt_time_sec',evt_time_sec, 'evt_time_sec/D')
 
-	evt_time_nsec = array('d', [0.0])
+	evt_time_nsec = np.array([0.0], dtype = np.float64)
 	tree.Branch('evt_time_nsec',evt_time_nsec, 'evt_time_nsec/D')
 
-	hit_pmtid = array('i',[0])
+	hit_pmtid = np.array([0], dtype = np.int64)
 	tree.Branch('hit_pmtid',hit_pmtid,'hit_pmtid/I')
 
-	hit_type = array('i',[0])
+	hit_type = np.array([0], dtype = np.int64)
 	tree.Branch('hit_type',hit_type,'hit_type/I')
 
-	hit_residual = array('d',[0.])
+	hit_residual = np.array([0], dtype = np.float64)
 	tree.Branch('hit_residual',hit_residual,'hit_residual/D')
 
 	# ------ Load Utility Tools ------
@@ -143,11 +143,12 @@ def extract_data(read_dir, save_dir):
 
 	# Energy Callibrator Definitions 
 	#print ('Takinkg Energy Calibrator Tool')
-	calibrator = util.GetReconCalibrator()
-	MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
-	CORRECTION_VER = 3   
-	IS_DATA = False   # False if MC
-	av_id = P3D.GetSystemId("av")
+	#calibrator = util.GetReconCalibrator()
+	#MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
+	#CORRECTION_VER = 3   # VER = 2 for bisMSB data/MC
+	#IS_DATA = True   # False if MC
+	#P3D = ROOT.RAT.DU.Point3D
+	#av_id = P3D.GetSystemId("av")
 
 	# ====== Reading file root info ======
 	print('Getting in reader ...')
@@ -239,24 +240,17 @@ def extract_data(read_dir, save_dir):
 				energy[0] = fVertex.GetEnergy()
 				#print(f'Reconstucted event energy: {energy[0]} (MeV)')
 
-
-				# Energy Correction
-				positionP3D = P3D(av_id, pos_xyz[0], pos_xyz[1], pos_xyz[2])
-				energy_correction = calibrator.CalibrateEnergyRTF(IS_DATA, energy[0], positionP3D, MATERIAL_NAME, CORRECTION_VER)
-				energy_corr[0] = energy_correction
-
-
 				fVertexTime =fVertex.GetTime()
 				fit_pos_3d = P3D(psup_id, fPosition.x(), fPosition.y(), fPosition.z())
-				# Loop over the hits
-				calibratedPMTs = rEV.GetCalPMTs()                   # PMTs Brach
-				for iPMT in range(0, calibratedPMTs.GetAllCount()):
+
+				# Time Residual Calculation
+				calibratedPMTs = rEV.GetCalPMTs()                    # PMTs Brach
+				for iPMT in range(0, calibratedPMTs.GetAllCount()):  # Loop over the hits
 					pmtCal = calibratedPMTs.GetAllPMT(iPMT)
 					pmtid = pmtCal.GetID()
 					pmttime =  pmtCal.GetTime()
-					
+
 					residual = timeResCalc.CalcTimeResidual(pmtid,pmttime,fit_pos_3d,fVertexTime)
-					
 					hit_pmtid[0] = pmtid
 					hit_residual[0] = residual
 
