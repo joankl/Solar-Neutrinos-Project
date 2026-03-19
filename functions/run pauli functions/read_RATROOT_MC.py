@@ -101,7 +101,7 @@ def extract_data(read_dir, save_dir):
 	tree.Branch('position',pos_xyz, 'position[3]/D')
 
 	pos_xyz_mc = array('d',3*[0.0])
-	tree.Branch('position',pos_xyz, 'position[3]/D')
+	tree.Branch('position_mc',pos_xyz, 'position_mc[3]/D')
 
 	sun_dir = array('d',3*[0.0])
 	tree.Branch('sun_dir',sun_dir, 'sun_dir[3]/D')
