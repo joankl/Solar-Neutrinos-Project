@@ -163,7 +163,7 @@ def extract_data(read_dir, save_dir):
 		# ------ Read and Save MC Info ------
 		rMC = rDS.GetMC()                                   # MC Branch
 	
-		mcid[0] = rMC.getMC()
+		mcid[0] = rMC.GetMCID()
 		print(f'MCID = {mcid[0]}')
 
 		energy_mc[0] = rMC.GetMCParticle(0).GetKineticEnergy()
@@ -178,8 +178,6 @@ def extract_data(read_dir, save_dir):
 		momentum_mc[1] = mc_mom.y()
 		momentum_mc[2] = mc_mom.z()
 
-		
-		rTime = rEV.GetUniversalTime()                      # Event Time Branch
 		
 		# Loop on each triggered event in the entry
 		for iev in range(0, rDS.GetEVCount()):
@@ -226,6 +224,7 @@ def extract_data(read_dir, save_dir):
 				#position = P3D(fPosition.x(), fPosition.y(), fPosition.z())
 
 				# Reconstructed Time
+				rTime = rEV.GetUniversalTime()                      # Event Time Branch
 				evt_time_day[0] = rTime.GetDays() 
 				evt_time_sec[0] = rTime.GetSeconds()
 				evt_time_nsec[0] = rTime.GetNanoSeconds()
