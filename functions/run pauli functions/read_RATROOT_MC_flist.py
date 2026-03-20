@@ -46,7 +46,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 
 	print('Extracting RATDS ROOT MC Data')
 
-	def write_pmt_info(fout,reload=False):
+	def write_pmt_info(fout, reload=False):
 
 		"""
 		Function to save the PMT Information
@@ -86,11 +86,17 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 			pmt_id[0] = i_pmt
 			pmt_type[0] = pmtinfo.GetType(i_pmt)
 			tpmt.Fill()
-    
+
 		tpmt.Write()
 
 	# Create Output file
 	fout = ROOT.TFile.Open(save_dir,"RECREATE")
+
+	# Save PMT Info.
+	write_pmt_info(fout, reload = True)
+	fout.Flush()  # Force to write metadata in disk
+
+
 	fout.cd()
 
 	# ====== Define the Branches of the output event data TTree ======
@@ -117,7 +123,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	tree.Branch('position',pos_xyz, 'position[3]/D')
 
 	pos_xyz_mc = array('d',3*[0.0])
-	tree.Branch('position_mc',pos_xyz, 'position_mc[3]/D')
+	tree.Branch('position_mc',pos_xyz_mc, 'position_mc[3]/D')
 
 	sun_dir = array('d',3*[0.0])
 	tree.Branch('sun_dir',sun_dir, 'sun_dir[3]/D')
@@ -281,10 +287,10 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 						tree.Fill()
 
 	tree.Write()
-	write_pmt_info(fout)
+	#write_pmt_info(fout)
 	fout.Close()
 	
-
+'''
 
 if __name__ == "__main__":
 
@@ -295,6 +301,7 @@ if __name__ == "__main__":
 
 	extract_data(read_dir, file_txt_dir, save_dir)
 
+'''
 
 
 
