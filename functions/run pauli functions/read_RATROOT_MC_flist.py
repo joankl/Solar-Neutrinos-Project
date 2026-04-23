@@ -287,10 +287,10 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 					pmtCalStatus = rat.utility().GetPMTCalStatus()
 					for iPMT in range(0, calibratedPMTs.GetAllCount()):
 						pmtCal = calibratedPMTs.GetAllPMT(iPMT)
-						if pmtCalStatus.GetHitStatus(iPMT) != 0:
+						if pmtCalStatus.GetHitStatus(pmtCal) != 0:
 							continue
 
-						pmt_point = RAT.DU.Point3D(psup_id, pmtinfo.GetPosition(pmtCal.GetID()))
+						pmt_point = P3D(psup_id, pmtinfo.GetPosition(pmtCal.GetID()))
 						light_path_cal.CalcByPosition(fit_pos_ev_3d, pmt_point)
 						inner_av_distance = light_path_cal.GetDistInInnerAV()
 						av_distance = light_path_cal.GetDistInAV()
@@ -302,7 +302,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 						residual = pmttime - transit_time - fVertexTime
 						#residual = timeResCalc.CalcTimeResidual(pmtid,pmttime,fit_pos_3d,fVertexTime)
 						
-						hit_pmtid[0] = pmtid
+						hit_pmtid[0] = pmtCal.GetID()
 						hit_residual[0] = residual
 
 						tree.Fill()
