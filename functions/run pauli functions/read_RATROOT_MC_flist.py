@@ -162,8 +162,11 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	# light Path Calculator
 	light_path_cal = util.GetLightPathCalculator()
 
-	# Gropu Velocity
+	# Group Velocity
 	group_velocity = util.GetGroupVelocity()
+
+	# pmt Information
+	pmtinfo = du.GetPMTInfo()
 
 	# Point3D with PSUP reference
 	P3D = ROOT.RAT.DU.Point3D
@@ -284,17 +287,16 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 					pmtCalStatus = rat.utility().GetPMTCalStatus()
 					for iPMT in range(0, calibratedPMTs.GetAllCount()):
 						pmtCal = calibratedPMTs.GetAllPMT(iPMT)
-						if pmtCalStatus.GetHitStatus(pmt) != 0:
+						if pmtCalStatus.GetHitStatus(iPMT) != 0:
 							continue
 
-						pmt_point = RAT.DU.Point3D(psup_id, pmt_info.GetPosition(pmt.GetID()))
+						pmt_point = RAT.DU.Point3D(psup_id, pmtinfo.GetPosition(pmtCal.GetID()))
 						light_path_cal.CalcByPosition(fit_pos_ev_3d, pmt_point)
 						inner_av_distance = light_path_cal.GetDistInInnerAV()
 						av_distance = light_path_cal.GetDistInAV()
 						water_distance = light_path_cal.GetDistInWater()
 						transit_time = group_velocity.CalcByDistance(inner_av_distance, av_distance, water_distance)
 
-						pmtid = pmtCal.GetID()
 						pmttime =  pmtCal.GetTime()
 
 						residual = pmttime - transit_time - fVertexTime
@@ -308,7 +310,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	tree.Write()
 	#write_pmt_info(fout)
 	fout.Close()
-		
+
 
 if __name__ == "__main__":
 
