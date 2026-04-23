@@ -166,7 +166,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	group_velocity = util.GetGroupVelocity()
 
 	# pmt Information
-	pmtinfo = du.GetPMTInfo()
+	pmtinfo = util.GetPMTInfo()
 
 	# Point3D with PSUP reference
 	P3D = ROOT.RAT.DU.Point3D
