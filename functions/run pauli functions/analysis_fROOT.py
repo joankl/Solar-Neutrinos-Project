@@ -2,6 +2,9 @@
 Function designed to read ROOT files from RATROOT files.
 This will output the results of the analysis in a numpy format.
 The script basicly pass from root format to numoy format
+
+Edits:
+27/04/2026: Implement a reader to select the most recent TTree braches of Data.
 '''
 
 import uproot
@@ -38,12 +41,12 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 	# ======== Data Cuts Settings ========
 	energy_inf_cut = 2.5
-	energy_sup_cut = 12
+	energy_sup_cut = 15
 
 	posr_cut = 5500
 
 	time_res_inf_cut = -1
-	time_res_sup_cut = 5
+	time_res_sup_cut = 50
 
 	qhs_inf_cut = 2000
 	qhs_sup_cut = 3400
@@ -52,9 +55,17 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 	load_data = uproot.open(fin_dir)
 
-	#select the tree of event data and PMT info
-	TTree_data_name = load_data.keys()[-1]
-	TTree_pmt_info_name = load_data.keys()[0]
+	#select the Key names for the PMT info and event data
+	all_keys = load_data.keys()
+
+	TTree_pmt_info_name = next((k for k in all_keys if k.startswith('pmt')), None) 
+
+	t_keys = [k for k in all_keys if k.startswith('T;')]
+	if t_keys:
+		TTree_data_name = sorted(t_keys, key=lambda x: int(x.split(';')[1]))[-1]
+	else:
+		# If the key has no cicle, then pick the key 'T' which select by default the most recent key verion
+		TTree_data_name = 'T'
 
 	event_data = load_data[TTree_data_name]
 	pmt_data = load_data[TTree_pmt_info_name]
@@ -192,11 +203,11 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 if __name__ == '__main__':
 
-	data_type = "8B_Nue_MC"
+	data_type = "8B_Nue_MC_2p2PPO"
 
 	source_path = '/lstore/sno/joankl/.venv/bin/activate'
-	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/root_files/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
 	flist = glob.glob(fin_dir)
 
 	os.makedirs(f'logs_{data_type}', exist_ok=True)
