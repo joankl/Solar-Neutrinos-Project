@@ -4,7 +4,8 @@ This will output the results of the analysis in a numpy format.
 The script basicly pass from root format to numoy format
 
 Edits:
-27/04/2026: Implement a reader to select the most recent TTree braches of Data.
+27/04/2026: Implement a reader to select the most recent TTree braches of Data. 
+28/04/2026: Correction on cos_alpha calculation due to vertex correction on PMT position
 '''
 
 import uproot
@@ -151,41 +152,45 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 	print('Computing cos_alpha')
 
-	sun_dirs = observables['momentum_mc']
+	sun_dir = observables['momentum_mc']
 	pmt_hit_id = observables['hit_pmtid']
 	pmt_hit_pos_xyz = observables['pmt_pos_xyz'][pmt_hit_id]
+	event_pos_xyz = observables['position']
 
-	norm_sun = np.linalg.norm(sun_dirs, axis=1, keepdims=True)
-	norm_pmt = np.linalg.norm(pmt_hit_pos_xyz, axis=1, keepdims=True)
+	# Correction due to reconstructed vertex position
+	photon_dir = pmt_hit_pos_xyz - event_pos_xyz
 
-	sun_dirs_unit = (sun_dirs / norm_sun).astype(np.float32)
-	pmt_pos_unit = (pmt_hit_pos_xyz / norm_pmt).astype(np.float32)
+	norm_sun = np.linalg.norm(sun_dir, axis=1, keepdims=True)
+	norm_photon = np.linalg.norm(photon_dir, axis=1, keepdims=True)
 
-	multi_cos_alpha = np.sum(sun_dirs_unit * pmt_pos_unit, axis=1)
+	sun_dir_unit = (sun_dir / norm_sun).astype(np.float32)
+	photon_dir_unit = (photon_dir / norm_pmt).astype(np.float32)
 
-	#for sample_idx in range(N_samples):
+	multi_cos_alpha = np.sum(sun_dir_unit * photon_dir_unit, axis=1)
 
-	#	sun_dir = observables['momentum_mc'][sample_idx]
-	#	pmt_hit_id = observables['hit_pmtid'][sample_idx]
-	#	pmt_hit_xyz = observables['pmt_pos_xyz'][pmt_hit_id]
-
-	#	norm1 = np.linalg.norm(sun_dir)
-	#	norm2 = np.linalg.norm(pmt_hit_xyz)
-
-	#	sun_dir = sun_dir / norm1
-	#	sun_dir = sun_dir.astype(np.float32)
-
-	#	pmt_hit_xyz = pmt_hit_xyz / norm2
-	#	pmt_hit_xyz = pmt_hit_xyz.astype(np.float32)
-
-	#	dot_prod = np.dot(sun_dir, pmt_hit_xyz)
-	#	cos_alpha = dot_prod
-
-		#multi_hit_pmt_xyz.append(pmt_hit_xyz)
-		#multi_mc_momentum.append(sun_dir)
-	#	multi_cos_alpha.append(cos_alpha)
-
-	#multi_cos_alpha = np.array(multi_cos_alpha)
+#	for sample_idx in range(N_samples):
+#
+#		sun_dir = observables['momentum_mc'][sample_idx]
+#		pmt_hit_id = observables['hit_pmtid'][sample_idx]
+#		pmt_hit_xyz = observables['pmt_pos_xyz'][pmt_hit_id]
+#
+#		norm1 = np.linalg.norm(sun_dir)
+#		norm2 = np.linalg.norm(pmt_hit_xyz)
+#
+#		sun_dir = sun_dir / norm1
+#		sun_dir = sun_dir.astype(np.float32)
+#
+#		pmt_hit_xyz = pmt_hit_xyz / norm2
+#		pmt_hit_xyz = pmt_hit_xyz.astype(np.float32)
+#
+#		dot_prod = np.dot(sun_dir, pmt_hit_xyz)
+#		cos_alpha = dot_prod
+#
+#		multi_hit_pmt_xyz.append(pmt_hit_xyz)
+#		multi_mc_momentum.append(sun_dir)
+#		multi_cos_alpha.append(cos_alpha)
+#
+#	multi_cos_alpha = np.array(multi_cos_alpha)
 	#multi_hit_pmt_xyz = np.array(multi_hit_pmt_xyz)
 	#multi_mc_momentum = np.array(multi_mc_momentum)
 
@@ -203,11 +208,11 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 if __name__ == '__main__':
 
-	data_type = "8B_Nue_MC_2p2PPO"
+	data_type = "8B_Nue_MC_bisMSB"
 
 	source_path = '/lstore/sno/joankl/.venv/bin/activate'
-	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/root_files/*.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
 	flist = glob.glob(fin_dir)
 
 	os.makedirs(f'logs_{data_type}', exist_ok=True)
