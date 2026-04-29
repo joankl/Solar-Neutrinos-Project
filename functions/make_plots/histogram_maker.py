@@ -24,13 +24,14 @@ bins = 80
 E_cut_list = [5, 6, 8, 10]
 R_cut_list = [5500, 4500, 3500]
 
+t_res_min_cut = -1
+t_res_max_cut = 5
+
 # 1 - Prepare the structure to save the counts of the histograms.
 #Structure is  the dictionary with entries dict[energy][radius]
 bin_edges = np.linspace(-1.0, 1.0, bins + 1)
 hist_data = {E: {R: np.zeros(bins) for R in R_cut_list} for E in E_cut_list}
 
-t_res_min = np.inf
-t_res_max = -np.inf
 
 # 2 - Available files and correct Correspondence of files
 base_files = glob.glob(read_dir + 'cos_alpha_*.npy')
@@ -44,17 +45,20 @@ print('Reading and Histogramming Data in Chunks...')
 for idx in indices:
 	# Load Chuncks
 	print(f'Loading Chunk {idx}')
-	
+
 	cos_chunk = np.load(read_dir + f'cos_alpha_{idx}.npy').astype(np.float32)
 	en_chunk = np.load(read_dir + f'energy_corr_{idx}.npy').astype(np.float32)
 	posr_chunk = np.load(read_dir + f'posr_{idx}.npy').astype(np.float32)
 	tres_chunk = np.load(read_dir + f'hit_residual_{idx}.npy').astype(np.float32)
 
-	# Update global max/min 
-	t_res_min = min(t_res_min, tres_chunk.min())
-	t_res_max = max(t_res_max, tres_chunk.max())
+	# Time Residual Cut
+	t_res_mask = (tres_chunk <= t_res_min_cut) & (tres_chunk >= t_res_max_cut)
 
-	# Apply cuts in chunck Data
+	en_chunk = en_chunk[t_res_mask]
+	posr_chunk = posr_chunk[t_res_mask]
+	cos_chunk = cos_chunk[t_res_mask]
+
+	# Apply Energy and Radial Cuts in chunck Data
 	for Ecut_i in E_cut_list:
 		en_mask = (en_chunk >= Ecut_i)
 
@@ -82,15 +86,13 @@ for Ecut_i in E_cut_list:
 
 		ax.hist(bin_edges[:-1], bins=bin_edges, weights=counts, histtype='step', color='blue', linewidth=1.5)
 
-		ax.set_title(f'E >= {Ecut_i} (MeV) & R <= {Rcut_i*10**-3:.1f} (m)')
+		ax.set_title(rf'E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)')
 		ax.set_yscale('log')
-		ax.set_xlabel('cos(alpha)')
+		ax.set_xlabel(r'cos($alpha$)')
 
 	# Titulo General
-	plt.suptitle(f'Directionality Distribution - ^8B-nue MC 2.2 PPO - t_res: [{t_res_min:.0f}, {t_res_max:.0f}] (ns)', fontsize=13, y=1.02)
+	plt.suptitle(rf'Directionality Distribution - $^8$B-$\nu_e$ MC BisMSB - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
 
-	# Bug corregido: Tu código anterior llamaba a plt.savefig con el Rcut_i de la última iteración, 
-	# a pesar de que la figura tenía los 3 cortes radiales.
 	save_path = save_dir + f'cos_alpha_dir_E_{Ecut_i}_MeV_All_Rcuts.png'
 	plt.savefig(save_path, dpi=300, bbox_inches='tight')
 
