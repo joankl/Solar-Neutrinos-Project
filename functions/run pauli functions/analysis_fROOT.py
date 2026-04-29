@@ -6,6 +6,9 @@ The script basicly pass from root format to numoy format
 Edits:
 27/04/2026: Implement a reader to select the most recent TTree braches of Data. 
 28/04/2026: Correction on cos_alpha calculation due to vertex correction on PMT position
+29/04/2026: Code Optimization. Observables must be loaded by hand and not reading a list.
+            PMT hit position are now photon directions with reconst. vertex correction.
+            Succesive del operations to free memory
 '''
 
 import uproot
@@ -71,35 +74,25 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	event_data = load_data[TTree_data_name]
 	pmt_data = load_data[TTree_pmt_info_name]
 
-	#event info to be used:
-	var_event_list = ['evtid', 'energy_corr', 'position', 'momentum_mc',
-	                  'hit_pmtid', 'hit_residual']  #list the name of the varibles to be extracted and used for the solarnu analysis.
-
-	#pmt info to be used
-	var_pmt_list = ['pmt_id', 'pmt_pos_xyz', 'pmt_type']
-
 	#Observables to save
 	var_name_save_list = ['evtid', 'energy_corr', 'posr', 'hit_residual']
 
-	# Create empty lists to save observables thar are not part of the three, or are coordinated variables 
-	multi_cos_alpha = []   # cos_alpha for the multiple PMTs record
-	multi_hit_pmt_xyz = [] # hit pmt coordinates
-	multi_mc_momentum = [] # simulated event direction
-	n_init_evs = []        # Initial Nº of Solar Nue MC events
+	print('Loading Observables')
 
-	# Extract the variables with the name of the var_event_list in numpy.array from the .root file
+	# Load Observables
 	observables = {}
 
-	# Load variables form the Event Info TTree Branch
-	for var_name_i in var_event_list:
-		observables[var_name_i] = np.array(event_data[var_name_i])
+	# Usar .array(library="np") es más eficiente y permite forzar el tipo de dato inmediatamente
+	observables['evtid'] = event_data['evtid'].array(library="np").astype(np.int32)
+	observables['energy_corr'] = event_data['energy_corr'].array(library="np").astype(np.float32)
+	observables['position'] = event_data['position'].array(library="np").astype(np.float32)
+	observables['momentum_mc'] = event_data['momentum_mc'].array(library="np").astype(np.float32)
+	observables['hit_pmtid'] = event_data['hit_pmtid'].array(library="np").astype(np.int32)
+	observables['hit_residual'] = event_data['hit_residual'].array(library="np").astype(np.float32)
 
 	# ============= Count the initial Nº of events =============
 	evtid = observables['evtid']
 	evIDi_unique = []  #Empty list to be filled with the unique (non-redundant) values of the initial evIDs. len(evIDi_unique) = Nº of events
-
-	N_data = len(evtid)
-	indices_to_delete = [] #Indiced to remove from the observable arrays due to nhits cut
 
 	# ----- Calculation of Data break due to repeated non-perhit observales -----
 	data_break_mask = (np.diff(evtid) != 0)
@@ -107,7 +100,6 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	data_break_index = np.concatenate(([0], data_break_index, [len(evtid) - 1])) # Add the initial and last index
 
 	N_terms = len(data_break_index)
-
 	for i_dx in range(N_terms - 2):
 		init_i = data_break_index[i_dx]
 		final_i = data_break_index[i_dx + 1]
@@ -115,18 +107,19 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 	N_init_evs = len(evIDi_unique)
 	print(f'Nº of initial events: {N_init_evs}')
-	n_init_evs.append(N_init_evs)
+	del evtid, evIDi_unique, data_break_mask, data_break_index # Liberar memoria
 
 	# Compute posr
 	observables['posr'] = magnitude(observables['position'])
 
 	# Load the PMT info TTree Branch
-	for var_name_i in var_pmt_list:
-		observables[var_name_i] = np.array(pmt_data[var_name_i])
+	pmt_id = pmt_data['pmt_id'].array(library="np").astype(np.int32)
+	pmt_type = pmt_data['pmt_type'].array(library="np").astype(np.int32)
 
 	# Filtering of valid PMT id through PMT type
-	pmt_type_condition = (observables['pmt_type'] == 1)
-	pmt_id_valid = observables['pmt_id'][pmt_type_condition]
+	pmt_type_condition = (pmt_type == 1)
+	pmt_id_valid = pmt_id[pmt_type_condition]
+	del pmt_id, pmt_type, pmt_type_condition # Liberar memoria
 
 	# general cut conditions
 	hit_pmt_id_condition = np.in1d(observables['hit_pmtid'], pmt_id_valid)
@@ -136,69 +129,43 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	posr_condition = (observables['posr'] <= posr_cut)
 
 	general_condition = hit_pmt_id_condition & energy_condition & time_res_condition & posr_condition
+	del hit_pmt_id_condition, energy_condition, time_res_condition, posr_condition
 
 	# Apply the general cut conditions to observables
-	for var_name_i in var_event_list:
+	for var_name_i in observables.keys():
 		observables[var_name_i] = observables[var_name_i][np.array(general_condition)]
-	observables['posr'] = observables['posr'][general_condition]
+	del general_condition
 
 	print(f'saving observables {var_name_save_list}')
 	for var_name_i in  var_name_save_list:
 		np.save(fout_dir + var_name_i + f'_{fcounter}.npy', observables[var_name_i])
 
 	# ========== cos_alpha computation ==========
-
-	N_samples = len(observables['hit_residual'])
-
 	print('Computing cos_alpha')
 
-	sun_dir = observables['momentum_mc']
-	pmt_hit_id = observables['hit_pmtid']
-	pmt_hit_pos_xyz = observables['pmt_pos_xyz'][pmt_hit_id]
-	event_pos_xyz = observables['position']
+	# Load PMTs positions and PMTID Selection
+	pmt_pos_all = pmt_data['pmt_pos_xyz'].array(library="np").astype(np.float32)
+	photon_dir = pmt_pos_all[observables['hit_pmtid']]
+	del pmt_pos_all
+	del observables['hit_pmtid']
 
 	# Correction due to reconstructed vertex position
-	photon_dir = pmt_hit_pos_xyz - event_pos_xyz
+	photon_dir -= observables['position']
+	del observables['position'] 
 
-	norm_sun = np.linalg.norm(sun_dir, axis=1, keepdims=True)
 	norm_photon = np.linalg.norm(photon_dir, axis=1, keepdims=True)
+	photon_dir /= norm_photon
+	del norm_photon
 
-	sun_dir_unit = (sun_dir / norm_sun).astype(np.float32)
-	photon_dir_unit = (photon_dir / norm_photon).astype(np.float32)
 
-	multi_cos_alpha = np.sum(sun_dir_unit * photon_dir_unit, axis=1)
+	sun_dir = observables['momentum_mc']
+	norm_sun = np.linalg.norm(sun_dir, axis=1, keepdims=True)
+	sun_dir /= norm_sun
+	del norm_sun
+	del observables['momentum_mc']
 
-#	for sample_idx in range(N_samples):
-#
-#		sun_dir = observables['momentum_mc'][sample_idx]
-#		pmt_hit_id = observables['hit_pmtid'][sample_idx]
-#		pmt_hit_xyz = observables['pmt_pos_xyz'][pmt_hit_id]
-#
-#		norm1 = np.linalg.norm(sun_dir)
-#		norm2 = np.linalg.norm(pmt_hit_xyz)
-#
-#		sun_dir = sun_dir / norm1
-#		sun_dir = sun_dir.astype(np.float32)
-#
-#		pmt_hit_xyz = pmt_hit_xyz / norm2
-#		pmt_hit_xyz = pmt_hit_xyz.astype(np.float32)
-#
-#		dot_prod = np.dot(sun_dir, pmt_hit_xyz)
-#		cos_alpha = dot_prod
-#
-#		multi_hit_pmt_xyz.append(pmt_hit_xyz)
-#		multi_mc_momentum.append(sun_dir)
-#		multi_cos_alpha.append(cos_alpha)
-#
-#	multi_cos_alpha = np.array(multi_cos_alpha)
-	#multi_hit_pmt_xyz = np.array(multi_hit_pmt_xyz)
-	#multi_mc_momentum = np.array(multi_mc_momentum)
-
-	#print('saving hit PMT xyz coordinates')
-	#np.save(fout_dir + '_hitpmt_xyz' + f'_{fcounter}.npy', multi_hit_pmt_xyz)
-
-	#print('saving event direction')
-	#np.save(fout_dir + '_mc_momentum' + f'_{fcounter}.npy', multi_mc_momentum)
+	multi_cos_alpha = np.sum(sun_dir * photon_dir, axis=1)
+	del sun_dir, photon_dir
 
 	print('saving cos_alpha')
 	np.save(fout_dir + 'cos_alpha' + f'_{fcounter}.npy', multi_cos_alpha)
@@ -208,11 +175,11 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 if __name__ == '__main__':
 
-	data_type = "8B_Nue_MC_PPO"
+	data_type = "8B_Nue_MC_BisMSB"
 
 	source_path = '/lstore/sno/joankl/.venv/bin/activate'
-	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/root_files/*.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
 	flist = glob.glob(fin_dir)
 
 	os.makedirs(f'logs_{data_type}', exist_ok=True)
