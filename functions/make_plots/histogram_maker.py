@@ -5,6 +5,7 @@ the corresponding plots from numpy array data
 Creation: 28/04/2026
 
 -Edit 28/04/2026: Optimization on data reading and histogram building
+29/04/2026: Add time residual cut to select data
 '''
 
 import numpy as np
