@@ -175,6 +175,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	# Energy Callibrator Definitions 
 	#print ('Takinkg Energy Calibrator Tool')
 	calibrator = util.GetReconCalibrator()
+	#MATERIAL_NAME = "labppo_2p2_scintillator"
 	MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
 	CORRECTION_VER = 3   
 	IS_DATA = False   # False if MC
@@ -308,7 +309,6 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 						tree.Fill()
 
 	tree.Write()
-	#write_pmt_info(fout)
 	fout.Close()
 
 
