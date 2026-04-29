@@ -53,11 +53,12 @@ for idx in indices:
 	tres_chunk = np.load(read_dir + f'hit_residual_{idx}.npy').astype(np.float32)
 
 	# Time Residual Cut
-	t_res_mask = (tres_chunk <= t_res_min_cut) & (tres_chunk >= t_res_max_cut)
+	t_res_mask = (tres_chunk >= t_res_min_cut) & (tres_chunk <= t_res_max_cut)
 
 	en_chunk = en_chunk[t_res_mask]
 	posr_chunk = posr_chunk[t_res_mask]
 	cos_chunk = cos_chunk[t_res_mask]
+	
 
 	# Apply Energy and Radial Cuts in chunck Data
 	for Ecut_i in E_cut_list:
@@ -70,6 +71,8 @@ for idx in indices:
 			counts, _ = np.histogram(cos_chunk[mask], bins=bin_edges)
 			# Save the counts
 			hist_data[Ecut_i][Rcut_i] += counts
+
+			#print(hist_data)
 
 print('Data fully processed. Generating Plots...')
 
@@ -89,7 +92,8 @@ for Ecut_i in E_cut_list:
 
 		ax.set_title(rf'E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)')
 		ax.set_yscale('log')
-		ax.set_xlabel(r'cos($alpha$)')
+		ax.set_xlabel(r'cos($\alpha$)')
+		ax.set_xlim(-1, 1)
 
 	# Titulo General
 	plt.suptitle(rf'Directionality Distribution - $^8$B-$\nu_e$ MC BisMSB - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
