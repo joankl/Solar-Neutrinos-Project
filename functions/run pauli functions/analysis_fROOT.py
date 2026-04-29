@@ -164,7 +164,7 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	norm_photon = np.linalg.norm(photon_dir, axis=1, keepdims=True)
 
 	sun_dir_unit = (sun_dir / norm_sun).astype(np.float32)
-	photon_dir_unit = (photon_dir / norm_pmt).astype(np.float32)
+	photon_dir_unit = (photon_dir / norm_photon).astype(np.float32)
 
 	multi_cos_alpha = np.sum(sun_dir_unit * photon_dir_unit, axis=1)
 
@@ -208,11 +208,11 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 if __name__ == '__main__':
 
-	data_type = "8B_Nue_MC_bisMSB"
+	data_type = "8B_Nue_MC_PPO"
 
 	source_path = '/lstore/sno/joankl/.venv/bin/activate'
-	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/root_files/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
 	flist = glob.glob(fin_dir)
 
 	os.makedirs(f'logs_{data_type}', exist_ok=True)
