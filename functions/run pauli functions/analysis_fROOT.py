@@ -12,6 +12,8 @@ Edits:
 30/04/2026: Add a section where only one file is gonna be readen. Useful for the real data
 			analysis on bisMSB. Also mc_branches are commented, so it should be 'turn on'
 			when analysizng MC data.
+			Include (-1) factor to sun direction to correctly account for the incoming
+			solar neutrinos direction.
 '''
 
 import uproot
@@ -163,7 +165,7 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 
 	#sun_dir = observables['momentum_mc']
-	sun_dir = observables['sun_dir']
+	sun_dir = observables['sun_dir'] * (-1)
 	norm_sun = np.linalg.norm(sun_dir, axis=1, keepdims=True)
 	sun_dir /= norm_sun
 	del norm_sun
@@ -180,18 +182,21 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 # ====== Section to read onli one file ======
 
+'''
+
 if __name__ == '__main__':
 
 	data_type = "real_data_bisMSB"
 
-	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/ratDS_output/root_files/solar_analysis_real_data_bisMSB.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/ratDS_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_output/root_files/solar_analysis_real_data_bisMSB.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_output/np_files/'
 
 	read_root(fin_dir, fout_dir, fcounter = 0)
 
+'''
 
 # ====== Section to read various files and launch jobs ======
-'''
+
 if __name__ == '__main__':
 
 	data_type = "8B_Nue_MC_bisMSB"
@@ -243,5 +248,5 @@ echo "Job finished"
 		# os.remove(script_name) 
 
 		time.sleep(0.5) # Pequeña pausa para no saturar al scheduler
-'''
+
 		
