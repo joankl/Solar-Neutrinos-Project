@@ -1,7 +1,7 @@
 '''
 Function designed to read ROOT files from RATROOT files.
 This will output the results of the analysis in a numpy format.
-The script basicly pass from root format to numoy format
+The script basicly pass from root format to numpy format
 
 Edits:
 27/04/2026: Implement a reader to select the most recent TTree braches of Data. 
@@ -9,6 +9,9 @@ Edits:
 29/04/2026: Code Optimization. Observables must be loaded by hand and not reading a list.
             PMT hit position are now photon directions with reconst. vertex correction.
             Succesive del operations to free memory
+30/04/2026: Add a section where only one file is gonna be readen. Useful for the real data
+			analysis on bisMSB. Also mc_branches are commented, so it should be 'turn on'
+			when analysizng MC data.
 '''
 
 import uproot
@@ -32,7 +35,7 @@ def magnitude(vector):
 def read_root(fin_dir, fout_dir, fcounter = 0):
 
 	'''
-	Function to read, perfomr cuts, and save observables of
+	Function to read, perform cuts, and save observables of
 	interest.
 
 	Parameters:
@@ -86,7 +89,8 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	observables['evtid'] = event_data['evtid'].array(library="np").astype(np.int32)
 	observables['energy_corr'] = event_data['energy_corr'].array(library="np").astype(np.float32)
 	observables['position'] = event_data['position'].array(library="np").astype(np.float32)
-	observables['momentum_mc'] = event_data['momentum_mc'].array(library="np").astype(np.float32)
+	#observables['momentum_mc'] = event_data['momentum_mc'].array(library="np").astype(np.float32)
+	observables['sun_dir'] = event_data['sun_dir'].array(library="np").astype(np.float32)
 	observables['hit_pmtid'] = event_data['hit_pmtid'].array(library="np").astype(np.int32)
 	observables['hit_residual'] = event_data['hit_residual'].array(library="np").astype(np.float32)
 
@@ -158,11 +162,12 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	del norm_photon
 
 
-	sun_dir = observables['momentum_mc']
+	#sun_dir = observables['momentum_mc']
+	sun_dir = observables['sun_dir']
 	norm_sun = np.linalg.norm(sun_dir, axis=1, keepdims=True)
 	sun_dir /= norm_sun
 	del norm_sun
-	del observables['momentum_mc']
+	del observables['sun_dir']
 
 	multi_cos_alpha = np.sum(sun_dir * photon_dir, axis=1)
 	del sun_dir, photon_dir
@@ -173,9 +178,23 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	print('Analysis Done!')
 
 
+# ====== Section to read onli one file ======
+
 if __name__ == '__main__':
 
-	data_type = "8B_Nue_MC_BisMSB"
+	data_type = "real_data_bisMSB"
+
+	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/ratDS_output/root_files/solar_analysis_real_data_bisMSB.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/ratDS_output/np_files/'
+
+	read_root(fin_dir, fout_dir, fcounter = 0)
+
+
+# ====== Section to read various files and launch jobs ======
+'''
+if __name__ == '__main__':
+
+	data_type = "8B_Nue_MC_bisMSB"
 
 	source_path = '/lstore/sno/joankl/.venv/bin/activate'
 	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
@@ -224,5 +243,5 @@ echo "Job finished"
 		# os.remove(script_name) 
 
 		time.sleep(0.5) # Pequeña pausa para no saturar al scheduler
-
+'''
 		
