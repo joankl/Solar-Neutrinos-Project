@@ -11,6 +11,7 @@ import rat
 import ROOT
 from array import array
 import glob
+import os
 
 
 def extract_data(read_dir, file_txt_dir, save_dir):
@@ -257,11 +258,12 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 if __name__ == "__main__":
 
 	#read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/run_evlist/Analysis20_bMR_r0000358052_s002_p005_runevelist_42.root'
-	read_dir = ''
-	file_txt_dir = ''
-	save_dir = ''
+	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis15/ratds/run_evlist/'
+	file_txt_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/file_name_list/runevlist_ratds/sublist_0.txt'
+	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/ratDS_output/root_files/'
+	fout_name = 'solar_analysis_real_data_bisMSB.root'
 
-	extract_data(read_dir, file_txt_dir, save_dir)
+	extract_data(read_dir, file_txt_dir, save_dir + fout_name)
 
 
 
