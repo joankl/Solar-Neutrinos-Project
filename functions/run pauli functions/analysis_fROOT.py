@@ -54,8 +54,8 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 	posr_cut = 5500
 
-	time_res_inf_cut = -1
-	time_res_sup_cut = 50
+	time_res_inf_cut = -150
+	time_res_sup_cut = 250
 
 	qhs_inf_cut = 2000
 	qhs_sup_cut = 3400
@@ -199,11 +199,11 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
 
-	data_type = "8B_Nue_MC_bisMSB"
+	data_type = "8B_Nue_MC_PPO"
 
 	source_path = '/lstore/sno/joankl/.venv/bin/activate'
-	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/root_files/*.roo'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
 	flist = glob.glob(fin_dir)
 
 	os.makedirs(f'logs_{data_type}', exist_ok=True)
