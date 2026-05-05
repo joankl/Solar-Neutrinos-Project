@@ -1,15 +1,9 @@
 '''
-Python script dedicated to build histograsm and save
-the corresponding plots from numpy array data. Until now
-it only calcualte the cos(alpha) distribution given some cuts
+Plot maker of the Time residual distribution.
+Be careful chosing the t_res_min and t_res_max to construct the binedges
+of the time residual distribution
 
-Creation: 28/04/2026
-
-Edit:	-28/04/2026: Optimization on data reading and histogram building.
-		-29/04/2026: Add time residual cut to select data.
-		-05/04/0206: Include lines to read real_data from Analysis* pattern
-					 folders. The loop to construct the histogram now is within
-					 the patter name of Analysis* folders.
+Creation: 05/05/2026
 '''
 
 import numpy as np
@@ -20,30 +14,29 @@ import matplotlib.pyplot as plt
 
 print('Reading Data ...')
 
-read_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis*/ratDS_output/np_files/'
+read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
 read_dir_list = glob.glob(read_dir)
-save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/plots/figures/'
+save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/plots/'
 
 os.makedirs(save_dir, exist_ok=True)
 
-bins = 25
+bins = 80
 E_cut_list = [5, 6, 8, 10]
 R_cut_list = [5500, 4500, 3500]
 
-t_res_min_cut = -1
-t_res_max_cut = 1
+t_res_min_cut = -150
+t_res_max_cut = 250
 
 # 1 - Prepare the structure to save the counts of the histograms.
-#Structure is  the dictionary with entries dict[energy][radius]
-bin_edges = np.linspace(-1.0, 1.0, bins + 1)
+bin_edges = np.linspace(t_res_min_cut, t_res_max_cut, bins + 1)
 hist_data = {E: {R: np.zeros(bins) for R in R_cut_list} for E in E_cut_list}
 
 # 2 - Available files and correct Correspondence of files
 base_files = glob.glob(read_dir + 'cos_alpha_*.npy')
 indices = [os.path.basename(f).replace('cos_alpha_', '').replace('.npy', '') for f in base_files] #--> index of files cos_alpha_*.npy to be used when loading
 
-print(f'Files to be readen: \n {base_files}')
 
+print(f'Files to be readen: \n {base_files}')
 print(f'Total de chunks a procesar: {len(indices)}')
 
 # 3 - Loading info by chuncks
@@ -53,19 +46,9 @@ for read_dir_i in read_dir_list:
 	for idx in indices:
 		# Load Chuncks
 		print(f'Loading Chunk {idx}')
-
-		cos_chunk = np.load(read_dir_i + f'cos_alpha_{idx}.npy').astype(np.float32)
 		en_chunk = np.load(read_dir_i + f'energy_corr_{idx}.npy').astype(np.float32)
 		posr_chunk = np.load(read_dir_i + f'posr_{idx}.npy').astype(np.float32)
 		tres_chunk = np.load(read_dir_i + f'hit_residual_{idx}.npy').astype(np.float32)
-
-		# Time Residual Cut
-		t_res_mask = (tres_chunk >= t_res_min_cut) & (tres_chunk <= t_res_max_cut)
-
-		en_chunk = en_chunk[t_res_mask]
-		posr_chunk = posr_chunk[t_res_mask]
-		cos_chunk = cos_chunk[t_res_mask]
-		
 
 		# Apply Energy and Radial Cuts in chunck Data
 		for Ecut_i in E_cut_list:
@@ -75,15 +58,15 @@ for read_dir_i in read_dir_list:
 				mask = en_mask & (posr_chunk <= Rcut_i)
 
 				# Compute the histogram
-				counts, _ = np.histogram(cos_chunk[mask], bins=bin_edges)
+				counts, hist_bin_edges = np.histogram(tres_chunk[mask], bins=bin_edges)
 				# Save the counts
 				hist_data[Ecut_i][Rcut_i] += counts
-
-				#print(hist_data)
 
 print('Data fully processed. Generating Plots...')
 
 # =========== Plot Construction ===========
+print(f'time residual limits defined as: [{t_res_min_cut},{t_res_max_cut}] ns')
+print(f'time residual limits found in histogram as: [{min(hist_bin_edges):.0f},{max(hist_bin_edges):.0f}] ns')
 
 for Ecut_i in E_cut_list:
     
@@ -99,13 +82,13 @@ for Ecut_i in E_cut_list:
 
 		ax.set_title(rf'E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)')
 		ax.set_yscale('log')
-		ax.set_xlabel(r'cos($\alpha$)')
-		ax.set_xlim(-1, 1)
+		ax.set_xlabel(r'$t_{res}$')
+		ax.set_xlim(t_res_min_cut, t_res_max_cut)
 
 	# Titulo General
-	plt.suptitle(rf'Directionality Distribution - BisMSB $^8$B-$\nu_e$ Candidates - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
+	plt.suptitle(rf'Time Residual Distribution - BisMSB $^8$B-$\nu_e$ Candidates - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
 
-	save_path = save_dir + f'cos_alpha_dir_E_{Ecut_i}_MeV_All_Rcuts.png'
+	save_path = save_dir + f'time_res_E_{Ecut_i}_MeV_All_Rcuts.png'
 	plt.savefig(save_path, dpi=300, bbox_inches='tight')
 
 	# Limpiamos la figura para que no se superpongan en la RAM
