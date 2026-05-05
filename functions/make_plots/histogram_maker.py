@@ -26,7 +26,7 @@ save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/plots/figures/'
 
 os.makedirs(save_dir, exist_ok=True)
 
-bins = 80
+bins = 25
 E_cut_list = [5, 6, 8, 10]
 R_cut_list = [5500, 4500, 3500]
 
@@ -105,7 +105,7 @@ for Ecut_i in E_cut_list:
 		ax.set_xlim(-1, 1)
 
 	# Titulo General
-	plt.suptitle(rf'Directionality Distribution - $^8$B-$\nu_e$ MC BisMSB - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
+	plt.suptitle(rf'Directionality Distribution - BisMSB $^8$B-$\nu_e$ Candidates - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
 
 	save_path = save_dir + f'cos_alpha_dir_E_{Ecut_i}_MeV_All_Rcuts.png'
 	plt.savefig(save_path, dpi=300, bbox_inches='tight')
