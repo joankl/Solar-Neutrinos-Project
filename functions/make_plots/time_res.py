@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 
 print('Reading Data ...')
 
-read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
+read_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis*/ratDS_output/np_files/'
 read_dir_list = glob.glob(read_dir)
-save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/plots/'
+save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/plots/figures/'
 
 os.makedirs(save_dir, exist_ok=True)
 

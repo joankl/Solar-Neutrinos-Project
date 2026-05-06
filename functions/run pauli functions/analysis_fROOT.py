@@ -180,7 +180,24 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	print('Analysis Done!')
 
 
-# ====== Section to read onli one file ======
+# ===== Section to run all files within a Loop =====
+
+if __name__ == '__main__':
+
+	source_path = '/lstore/sno/joankl/.venv/bin/activate'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratds_output/np_files/'
+	flist = glob.glob(fin_dir)
+
+	for fi_dx, file_i in enumerate(flist):
+		print(f'reding file with file {fi_dx}: {file_i}')
+		read_root (f'{file_i}', f'{fout_dir}', fcounter = {fi_dx})
+
+	print('Finished!')
+
+
+
+# ====== Section to read only one file ======
 
 '''
 
@@ -193,17 +210,17 @@ if __name__ == '__main__':
 
 	read_root(fin_dir, fout_dir, fcounter = 0)
 
-'''
+
 
 # ====== Section to read various files and launch jobs ======
 
 if __name__ == '__main__':
 
-	data_type = "8B_Nue_MC_PPO"
+	data_type = "8B_Nue_MC_bisMSB"
 
 	source_path = '/lstore/sno/joankl/.venv/bin/activate'
-	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/root_files/*.roo'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratds_output/np_files/'
 	flist = glob.glob(fin_dir)
 
 	os.makedirs(f'logs_{data_type}', exist_ok=True)
@@ -224,7 +241,7 @@ if __name__ == '__main__':
 #SBATCH --output=logs_{data_type}/job_{fi_dx}.out
 #SBATCH --error=logs_{data_type}/job_{fi_dx}.err
 #SBATCH --partition=lipq
-#SBATCH --mem=12G
+#SBATCH --mem=6G
 
 echo "Running on host: $(hostname)"
 
@@ -249,4 +266,6 @@ echo "Job finished"
 
 		time.sleep(0.5) # Pequeña pausa para no saturar al scheduler
 
+
+'''
 		
