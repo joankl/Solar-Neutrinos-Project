@@ -1,7 +1,8 @@
 '''
 Python script dedicated to build histograsm and save
 the corresponding plots from numpy array data. Until now
-it only calcualte the cos(alpha) distribution given some cuts
+it only calcualte the cos(alpha) distribution given cuts
+on energy and radial position
 
 Creation: 28/04/2026
 
