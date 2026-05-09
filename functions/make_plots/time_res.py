@@ -19,9 +19,13 @@ from matplotlib import font_manager
 
 print('Reading Data ...')
 
-read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
+#read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
+read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
+
 read_dir_list = glob.glob(read_dir)
-save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/plots/'
+
+#save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/plots/'
+save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/plots/'
 
 os.makedirs(save_dir, exist_ok=True)
 
@@ -96,8 +100,8 @@ for Ecut_i in E_cut_list:
 		ax.set_xlim(t_res_min_cut, t_res_max_cut)
 
 		# --- Markers ---
-		ax.xaxis.set_minor_locator(MultipleLocator(0.5))
-		ax.xaxis.set_major_locator(MultipleLocator(1))
+		ax.xaxis.set_minor_locator(MultipleLocator(10))
+		ax.xaxis.set_major_locator(MultipleLocator(100))
 
 		#ax.yaxis.set_minor_locator(MultipleLocator(0.01))
 		#ax.yaxis.set_major_locator(MultipleLocator(0.05))
