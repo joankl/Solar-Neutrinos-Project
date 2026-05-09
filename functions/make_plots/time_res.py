@@ -19,9 +19,9 @@ from matplotlib import font_manager
 
 print('Reading Data ...')
 
-read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
+read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
 read_dir_list = glob.glob(read_dir)
-save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/plots/'
+save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/plots/'
 
 os.makedirs(save_dir, exist_ok=True)
 
@@ -29,8 +29,8 @@ bins = 150
 E_cut_list = [5]
 R_cut_list = [5500]
 
-t_res_min_cut = -5
-t_res_max_cut = 5
+t_res_min_cut = -50
+t_res_max_cut = 200
 
 # 1 - Prepare the structure to save the counts of the histograms.
 bin_edges = np.linspace(t_res_min_cut, t_res_max_cut, bins + 1)
@@ -81,6 +81,7 @@ font_prop = font_manager.FontProperties(family=font_style_axis['family'], weight
 for Ecut_i in E_cut_list:
     
 	fig, axes = plt.subplots(1, len(R_cut_list), figsize=(8, 6))
+	axes = np.atleast_1d(axes)
 
 	for i_dx, Rcut_i in enumerate(R_cut_list):
 		ax = axes[i_dx]
@@ -90,8 +91,8 @@ for Ecut_i in E_cut_list:
 		ax.hist(bin_edges[:-1], bins=bin_edges, weights=counts, density=True, histtype='step', color='blue', linewidth=1.5)
 
 		ax.set_yscale('log')
-		ax.set_xlabel(r'$t_{res}$', fontdict = font_style_axis)
-		ax.ylabel(r'Prob. Density', fontdict = font_style_axis)
+		ax.set_xlabel(r'$t_{res}$ (ns)', fontdict = font_style_axis)
+		ax.set_ylabel(r'Prob. Density', fontdict = font_style_axis)
 		ax.set_xlim(t_res_min_cut, t_res_max_cut)
 
 		# --- Markers ---
@@ -104,7 +105,7 @@ for Ecut_i in E_cut_list:
 		ax.tick_params(which='minor', top=True, bottom=True, left=True, right=True)
 		ax.tick_params(which='major', top=True, bottom=True, left=True, right=True)
 
-		ax.set_title(rf'Time Residual Distribution - 2.2PPO $^8$B-$\nu_e$ MC - E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)', fontdict = font_style_title)
+		ax.set_title(rf'Time Residual Distribution - BisMSB $^8$B-$\nu_e$ MC - E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)', fontdict = font_style_title)
 
 	# Titulo General
 	#plt.suptitle(rf'Time Residual Distribution - BisMSB $^8$B-$\nu_e$ Candidates - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
