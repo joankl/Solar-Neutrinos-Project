@@ -181,7 +181,7 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 
 # ===== Section to run all files within a Loop =====
-
+'''
 if __name__ == '__main__':
 
 	source_path = '/lstore/sno/joankl/.venv/bin/activate'
@@ -195,7 +195,7 @@ if __name__ == '__main__':
 
 	print('Finished!')
 
-
+'''
 
 # ====== Section to read only one file ======
 
@@ -211,7 +211,7 @@ if __name__ == '__main__':
 	read_root(fin_dir, fout_dir, fcounter = 0)
 
 
-
+'''
 # ====== Section to read various files and launch jobs ======
 
 if __name__ == '__main__':
@@ -267,5 +267,4 @@ echo "Job finished"
 		time.sleep(0.5) # Pequeña pausa para no saturar al scheduler
 
 
-'''
 		
