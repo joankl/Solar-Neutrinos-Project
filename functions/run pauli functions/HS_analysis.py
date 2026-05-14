@@ -55,7 +55,7 @@ def HS_analysis(read_dir, file_txt_dir, save_dir):
 		fdir_i = os.path.join(read_dir, fname_i)
 
 		file_i = uproot.open(fdir_i)
-		print(f'Keys of root file= {file_i.keys()}')
+		print(f'Keys of root file= {file_i.keys()} on iteration {i_dx}')
 		data = file_i['output;1']
 
 		# ==== Cut Conditions ====
