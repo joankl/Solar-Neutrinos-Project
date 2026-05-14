@@ -242,7 +242,7 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
                     dt = time_next_hs - time_hs
 
                 except IndexError:
-                    continue
+                    break
     #else:
         #continue
 
