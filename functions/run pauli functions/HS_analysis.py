@@ -78,7 +78,7 @@ def HS_analysis(read_dir, file_txt_dir, save_dir):
 
 	print('concatenating data ...')
 	data_dict = {obs: np.concatenate(data_list[obs]) for obs in var_list}
-	del data_lists
+	del data_list
 
 
 	# ====== HS Analysis ======
@@ -163,6 +163,8 @@ def HS_analysis(read_dir, file_txt_dir, save_dir):
 
 	else:
 		print('No Hotspot were found')
+
+	print('Done :)')
 
 if __name__ == '__main__':
 
