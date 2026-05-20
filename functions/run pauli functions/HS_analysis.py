@@ -5,6 +5,8 @@ phase. This script should save the GTID, runID and subrunID of
 the event compatible with HS and followers. 
 
 Creation date: 14/05/2026
+
+Edit:	- (20/05/2026) Add the section to submit jobs to the Grid
 '''
 
 import uproot
@@ -13,6 +15,7 @@ import glob
 import re
 import os
 import pickle
+import time
 
 
 # =================== Auxiliar Functions ===================
@@ -29,7 +32,7 @@ def natural_order(file):
 
 # ============================================================
 
-def HS_analysis(read_dir, file_txt_dir, save_dir):
+def HS_analysis(read_dir, file_txt_dir, save_dir, fcounter = 0):
 
 	'''
 	Parameters:
@@ -37,6 +40,7 @@ def HS_analysis(read_dir, file_txt_dir, save_dir):
 	- file_txt_dir: Directory where the files.txt with the names of 
 					files to be read are.
 	- save_dir: Directiry where the analysis result will be saved.
+	-fcounter:  Keep count of the readen files
 	'''
 
 	# ----- Set the variables to be saved for the HS analysis -----
@@ -155,10 +159,10 @@ def HS_analysis(read_dir, file_txt_dir, save_dir):
 
 
 		print('saving the dictionary in pickle format')
-		with open(save_dir + 'hs_prompt_dict.pkl', 'wb') as f:
+		with open(save_dir + f'hs_prompt_dict_{fcounter}.pkl', 'wb') as f:
 			pickle.dump(hs_prompt_dict, f)
 
-		with open(save_dir + 'hs_delay_dict.pkl', 'wb') as f:
+		with open(save_dir + f'hs_delay_dict_{fcounter}.pkl', 'wb') as f:
 			pickle.dump(hs_delay_dict, f)
 
 	else:
@@ -166,6 +170,8 @@ def HS_analysis(read_dir, file_txt_dir, save_dir):
 
 	print('Done :)')
 
+'''
+# ====== Section to read only one file ======
 if __name__ == '__main__':
 
 	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/'
@@ -173,5 +179,67 @@ if __name__ == '__main__':
 	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/proof/'
 
 	HS_analysis(read_dir, file_txt_dir, save_dir)
+'''
+
+# ====== Section to read various files and launch jobs ======
+
+if __name__ == '__main__':
+
+	data_type = "2.2PPO_HS_analysis"
+
+	source_path = '/lstore/sno/joankl/.venv/bin/activate'
+	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/'
+	file_txt_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/file_name_list/ntuple/sublist_*.txt'
+	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ntuple_output/HS_results/'
+
+	flist = glob.glob(file_txt_dir)
+	flist = sorted(flist, key = natural_order)
+
+	print('Ordered List:')
+	print(' ')
+	print(flist)
+
+	os.makedirs(f'logs_{data_type}', exist_ok=True)
+
+	for fi_dx, file_i in enumerate(flist):
+
+		print(f'reding file with file {fi_dx}: {file_i}')
+
+		script_name = f"run_analysis_{fi_dx}.sh"
+
+		py_cmd = (
+			f"from HS_analysis import HS_analysis; "
+			f"HS_analysis ('{read_dir}', '{file_i}', '{save_dir}', fcounter = {fi_dx})"
+			)
+		
+		script_cont = f"""#!/bin/bash
+#SBATCH --job-name={data_type}_{fi_dx}
+#SBATCH --output=logs_{data_type}/job_{fi_dx}.out
+#SBATCH --error=logs_{data_type}/job_{fi_dx}.err
+#SBATCH --partition=lipq
+#SBATCH --mem=6G
+
+echo "Running on host: $(hostname)"
+
+source {source_path}
+
+echo "Input file: {file_i}"
+
+python -c "{py_cmd}"
+
+echo "Job finished"
+"""
+
+		with open(script_name, "w") as f:
+		    f.write(script_cont)
+
+		# Enviar a la cola
+		print(f"Enviando job {fi_dx}...")
+		os.system(f"sbatch {script_name}")
+
+		# Borrar el script generado para no llenar la carpeta de basura (opcional)
+		# os.remove(script_name) 
+
+		time.sleep(0.5) # Pequeña pausa para no saturar al scheduler
 
 
