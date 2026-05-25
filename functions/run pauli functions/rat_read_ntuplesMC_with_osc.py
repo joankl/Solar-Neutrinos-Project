@@ -16,9 +16,11 @@ The script will save:
 - The ntuple data of interest to analyze
 - The Pee values for each saved ntuple event.
 
+THIS SCRIP COMPUTES DE OSCILLATION ON nu_mu flavor!
+
 Edit Dates:
 - 23/01/2026 Include RAT code to implement the energy correction
-- 22/05/2026 Include ITR Cut above 0.2
+- 22/05/2026 Include itr cut above 0.2
 '''
 
 import numpy as np
@@ -191,7 +193,7 @@ def extract_data(read_data_dir, file_txt_dir, save_dir, pselmaa_data_dir):
         rng = np.random.default_rng(seed=42) # Seed for Reproducibility
         r_vec = rng.random(N_ev) # Random vector
 
-        survival_mask = (r_vec < Pee_int)  # Binary mask. If False the event has 'oscillated' and will be removed
+        survival_mask = (r_vec < (1 - Pee_int))  # Binary mask. If False the event has 'oscillated' and will be removed
 
         # Event selection
         for var in var_read_name_list:
@@ -227,7 +229,7 @@ def extract_data(read_data_dir, file_txt_dir, save_dir, pselmaa_data_dir):
         #mask_cut = 0xD82100000162C6
         #dcflag_condition = ((int(mask_cut) & temp_vars['dcFlagged']) == int(mask_cut))
         
-        general_condition = valid_condition & nhits_condition & energy_condition & posr_condition & itr_condition
+        general_condition = valid_condition & nhits_condition & energy_condition & posr_condition & itr_condition #& dcflag_condition
 
         # ========== Apply cut conditions and save the data ==========
 
