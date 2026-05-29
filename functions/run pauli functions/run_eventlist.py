@@ -22,20 +22,28 @@ def execute_mac(fin_dir, fout_dir):
 	command_line = f"rat -i {fin_dir} -o {fout_dir} runeventlist.mac"
 	subprocess.run(command_line, shell=True, check=True)
 
-
-
+# Run to Loop over files
 if __name__ == "__main__":
 
-	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis15_bMR/ratds/'
-	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15_bMR/ratDS_selection/temp/'
+	print('Function activated! DONT SUBMIT JOBS?')
+	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/ratds/'	# Directory where the RATDS ROOT files are
+	fin_patter = 'Analysis20_PPOR*.root'										# Pattern name of the input files
+	f_list = glob.glob(read_dir + fin_patter)  									# List of full dir + name of the input files
 
-	flist = glob.glob(read_dir + 'Analysis15_bMR*.root')
+	save_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/ratds/run_evlist/'
 
-	for i_dx, file_i in enumerate(flist):
+	print(f'files to be readen: {f_list}')
 
-		print(f'reading file {file_i}')
+	for i_dx, file_i in enumerate(f_list):
+		print(f'On loop number {i_dx} of {len(f_list)}')
 
-		fout_name = os.path.basename(file_i)
-		fout_name = os.path.splitext(fout_name)[0]  # Selected filename without format extention. Exm: ('fname', '.root')
 
-		execute_mac(file_i, save_dir + fout_name + f'_runevelist_{i_dx}.root')
+		fname = os.path.splitext(os.path.basename(file_i))[0]
+		execute_mac(file_i, save_dir + fname + '_resume.root')
+
+	fin_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/Analysis20_bMR_r0000354099_s014_p005.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/test/out.root'
+
+	execute_mac(fin_dir, fout_dir)
+
+	print('Done :-)')
