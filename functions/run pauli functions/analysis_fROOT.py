@@ -181,12 +181,11 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 
 # ===== Section to run all files within a Loop =====
-'''
+
 if __name__ == '__main__':
 
-	source_path = '/lstore/sno/joankl/.venv/bin/activate'
-	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratds_output/np_files/'
+	fin_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/ratds/run_evlist/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/np_files/'
 	flist = glob.glob(fin_dir)
 
 	for fi_dx, file_i in enumerate(flist):
@@ -194,8 +193,6 @@ if __name__ == '__main__':
 		read_root (f'{file_i}', f'{fout_dir}', fcounter = {fi_dx})
 
 	print('Finished!')
-
-'''
 
 # ====== Section to read only one file ======
 
@@ -210,6 +207,8 @@ if __name__ == '__main__':
 
 	read_root(fin_dir, fout_dir, fcounter = 0)
 
+
+'''
 
 '''
 # ====== Section to read various files and launch jobs ======
@@ -265,6 +264,5 @@ echo "Job finished"
 		# os.remove(script_name) 
 
 		time.sleep(0.5) # Pequeña pausa para no saturar al scheduler
-
-
 		
+'''

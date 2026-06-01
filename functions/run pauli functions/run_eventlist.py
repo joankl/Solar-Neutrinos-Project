@@ -41,9 +41,4 @@ if __name__ == "__main__":
 		fname = os.path.splitext(os.path.basename(file_i))[0]
 		execute_mac(file_i, save_dir + fname + '_resume.root')
 
-	fin_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/Analysis20_bMR_r0000354099_s014_p005.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/test/out.root'
-
-	execute_mac(fin_dir, fout_dir)
-
 	print('Done :-)')
