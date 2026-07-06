@@ -14,6 +14,9 @@ Edits:
 			when analysizng MC data.
 			Include (-1) factor to sun direction to correctly account for the incoming
 			solar neutrinos direction.
+
+06/07/2026: remove unecessary cuts (energy, position) when running the code on already 
+			selected events.
 '''
 
 import uproot
@@ -129,13 +132,13 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 	# general cut conditions
 	hit_pmt_id_condition = np.in1d(observables['hit_pmtid'], pmt_id_valid)
-	energy_condition = (observables['energy_corr'] >= energy_inf_cut) & (observables['energy_corr'] <= energy_sup_cut)
+	#energy_condition = (observables['energy_corr'] >= energy_inf_cut) & (observables['energy_corr'] <= energy_sup_cut)
 	time_res_condition = (observables['hit_residual'] >= time_res_inf_cut) & (observables['hit_residual'] <= time_res_sup_cut)
 	#qhs_condition = (observables['hit_pmtQHS'] >= qhs_inf_cut) & (observables['hit_pmtQHS'] <= qhs_sup_cut)
-	posr_condition = (observables['posr'] <= posr_cut)
+	#posr_condition = (observables['posr'] <= posr_cut)
 
-	general_condition = hit_pmt_id_condition & energy_condition & time_res_condition & posr_condition
-	del hit_pmt_id_condition, energy_condition, time_res_condition, posr_condition
+	general_condition = hit_pmt_id_condition & time_res_condition 
+	del hit_pmt_id_condition, time_res_condition
 
 	# Apply the general cut conditions to observables
 	for var_name_i in observables.keys():
@@ -180,8 +183,19 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	print('Analysis Done!')
 
 
-# ===== Section to run all files within a Loop =====
+# ====== Section to read only one file ======
 
+if __name__ == '__main__':
+
+	data_type = "real_data_2p2PPO"
+
+	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/root_files/solar_analysis_real_data_2p2PPO.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/np_files/'
+
+	read_root(fin_dir, fout_dir, fcounter = 0)
+
+# ===== Section to run all files within a Loop =====
+'''
 if __name__ == '__main__':
 
 	fin_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/ratds/run_evlist/*.root'
@@ -193,6 +207,7 @@ if __name__ == '__main__':
 		read_root (f'{file_i}', f'{fout_dir}', fcounter = {fi_dx})
 
 	print('Finished!')
+'''
 
 # ====== Section to read only one file ======
 
@@ -206,7 +221,6 @@ if __name__ == '__main__':
 	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_output/np_files/'
 
 	read_root(fin_dir, fout_dir, fcounter = 0)
-
 
 '''
 
