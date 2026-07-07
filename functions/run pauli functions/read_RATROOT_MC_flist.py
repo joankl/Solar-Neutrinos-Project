@@ -104,6 +104,9 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	print('creating TTree Branches')
 	tree = ROOT.TTree("T", "output_summary")
 
+	parent_energy = array('d', [0.0])
+	tree.Branch('parent_energy', parent_energy, 'parent_energy/D')
+
 	energy = array('d', [0.0])
 	tree.Branch('energy', energy, 'energy/D')
 
@@ -204,6 +207,8 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 		
 			mcid[0] = rMC.GetMCID()
 			print(f'MCID = {mcid[0]}')
+
+			parent_energy[0] = rMC.GetMCParent(0).GetKineticEnergy()
 
 			energy_mc[0] = rMC.GetMCParticle(0).GetKineticEnergy()
 
@@ -311,7 +316,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	tree.Write()
 	fout.Close()
 
-
+'''
 if __name__ == "__main__":
 
 	#read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/run_evlist/Analysis20_bMR_r0000358052_s002_p005_runevelist_42.root'
@@ -320,6 +325,8 @@ if __name__ == "__main__":
 	save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/proof/x.root'
 
 	extract_data(read_dir, file_txt_dir, save_dir)
+
+'''
 
 
 
