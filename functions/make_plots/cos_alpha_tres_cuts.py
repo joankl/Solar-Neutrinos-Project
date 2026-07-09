@@ -21,16 +21,16 @@ from matplotlib import font_manager
 
 print('Reading Data ...')
 
-read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
+read_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
 read_dir_list = glob.glob(read_dir)
-save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/plots/'
+save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/plots/'
 
 os.makedirs(save_dir, exist_ok=True)
 
 bins = 80
 E_inf_cut = 5
-#E_cut_list = [5, 6, 8, 10]
-#R_cut_list = [5500, 4500, 3500]
+E_cut_list = [5, 6, 8, 10]
+R_cut_list = [5500, 4500, 3500]
 
 t_res_cut_list = [(-5,5), (-5,4), (-5,3), (-5,2), (-5,1)]
 
@@ -103,10 +103,11 @@ plt.yscale('log')
 plt.xlabel(r'cos($\alpha$)', fontdict = font_style_axis)
 plt.ylabel(r'Prob. Density', fontdict = font_style_axis)
 plt.xlim(-1, 1)
+plt.ylim(0, 1)
 
 # --- Markers ---
-ax.xaxis.set_minor_locator(MultipleLocator(0.2))
-ax.xaxis.set_major_locator(MultipleLocator(0.5))
+ax.xaxis.set_minor_locator(MultipleLocator(0.1))
+ax.xaxis.set_major_locator(MultipleLocator(0.2))
 
 #ax.yaxis.set_minor_locator(MultipleLocator(0.01))
 #ax.yaxis.set_major_locator(MultipleLocator(0.05))
@@ -114,10 +115,10 @@ ax.xaxis.set_major_locator(MultipleLocator(0.5))
 ax.tick_params(which='minor', top=True, bottom=True, left=True, right=True)
 ax.tick_params(which='major', top=True, bottom=True, left=True, right=True)
 
-plt.legend(loc = 'best', frameon = True, edgecolor='black', prop = font_prop)
+plt.legend(loc = 'upper left', frameon = True, edgecolor='black', prop = font_prop)
 
 
-plt.title(rf'Directionality Distribution - BisMSB $^8$B-$\nu_e$ MC - E $\geq$ {E_inf_cut} (MeV) & R $\leq$ 5.5 (m)', fontdict = font_style_title)
+plt.title(rf'Directionality Distribution - 2.2PPO $^8$B-$\nu_e$ MC - E $\geq$ {E_inf_cut} (MeV) & R $\leq$ 5.5 (m)', fontdict = font_style_title)
 
 save_path = save_dir + f'cos_alpha_dir_tres_cuts.png'
 plt.savefig(save_path, dpi=300, bbox_inches='tight')
