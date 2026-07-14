@@ -62,6 +62,7 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     # This dictionary will save the data extracted from the loop over the files.
     # It will be used to perform the coincidence analysis
     data_dict = {var: [] for var in data_var_save_name_list}
+    data_dict['dcFlagged'] = []
 
     # ----- HS and atmospheric Dictionary -----
     hs_dict = { 'counter': [],
@@ -102,28 +103,17 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
             else:
                 temp_vars[var] = np.array(output[var])
 
-        # ============ Cut Conditions ============
+        # ============ Cut Conditions for HS and atm ============
 
-        # ---- General Cut Conditions overall dataset ----
         valid_condition = (temp_vars['scintFit'] & temp_vars['fitValid'])
-
-        nhits_min = 20
-        nhits_condition = (temp_vars['nhits'] >= nhits_min)
-
-        energy_cut = 1.0 #MeV
-        energy_condition = (temp_vars['energy'] >= energy_cut)
-
         posr_cut = 5500.0 # mm
         posr_condition = (temp_vars['posr_av'] <= posr_cut)
 
-        mask_cut = 0xD82100000162C6
-        dcflag_condition = ((int(mask_cut) & temp_vars['dcFlagged']) == int(mask_cut))
-
-        general_condition = valid_condition & nhits_condition & energy_condition & posr_condition & dcflag_condition
+        hs_atm_cut_condition = valid_condition & posr_condition
 
         # Apply general cuts
         for var in var_read_name_list:
-            temp_vars[var] = temp_vars[var][general_condition]
+            temp_vars[var] = temp_vars[var][hs_atm_cut_condition]
 
         # Transform ClockCount50 into time
         time = (temp_vars['clockCount50']*20)/1000 # in microseconds
@@ -132,6 +122,7 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
         # Save the filtered result on the data_dict out of the file loop:
         for var in data_var_save_name_list:
             data_dict[var].append(temp_vars[var].tolist())
+        data_dict['dcFlagged'].append(temp_vars['dcFlagged'].tolist())
 
     # Flat the sublists of the data_dict
     for var in data_var_save_name_list:
@@ -144,6 +135,7 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     posx, posy, posz = np.array(data_dict['posx']), np.array(data_dict['posy']), np.array(data_dict['posz_av'])
     runID = np.array(data_dict['runID'])
     eventID = np.array(data_dict['eventID'])
+    dcFlagged = np.array(data_dict['dcFlagged'])
 
     #print(f'nhits data = {nhits}')
 
@@ -315,6 +307,21 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     posz = np.delete(posz, full_index_to_remove)
     runID = np.delete(runID, full_index_to_remove)
     eventID = np.delete(eventID, full_index_to_remove)
+    dcFlagged = np.delete(dcFlagged, full_index_to_remove)
+
+    # ---- Mask Cut ----
+
+    mask_cut = 0xD82100000162C6
+    dcflag_condition = ((int(mask_cut) & dcFlagged) == int(mask_cut))
+
+    energy = energy[dcflag_condition]
+    time = time[dcflag_condition]
+    nhits = nhits[dcflag_condition]
+    posx = posx[dcflag_condition]
+    posy = posy[dcflag_condition]
+    posz = posz[dcflag_condition]
+    runID = runID[dcflag_condition]
+    eventID = eventID[dcflag_condition]
 
     # ---- Coincidence Cuts ----
     energy_prompt_inf_cut = 1.0
@@ -349,6 +356,9 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
         posz1 = posz[prompt_idx]
         t1 = time[prompt_idx]
 
+        if not (energy_prompt_inf_cut <= energy1 <= energy_prompt_sup_cut):
+            continue
+
         # Suspected delay observables
         try:
             runID2 = runID[delay_idx]
@@ -371,10 +381,10 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
             continue
 
         # Look for the coincidence
-        while (dt > dt_inf_cut) and (dt <= dt_sup_cut):
+        while (dt_inf_cut < dt <= dt_sup_cut):
 
 
-            if (dr >= dr_inf_cut) and (dr <= dr_sup_cut) and (dt > dt_inf_cut) and (dt <= dt_sup_cut) and (energy2 >= energy_delay_inf_cut) and (energy2 <= energy_delay_sup_cut):
+            if (dr_inf_cut <= dr <= dr_sup_cut) and (dt_inf_cut < dt <= dt_sup_cut) and (energy_delay_inf_cut <= energy2 <= energy_delay_sup_cut):
                 print(f'Pair found with dr = {dr} and dt = {dt}')
 
                 prompt_obs_lst = [runID1, eventID1, energy1, posx1, posy1, posz1, t1]
@@ -419,7 +429,7 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
 
     return print('Analysis Done!')
 
-
+'''
 if __name__ == '__main__':
 
     read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis15/'
@@ -427,3 +437,4 @@ if __name__ == '__main__':
     save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/proof/'
 
     veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir)
+'''
