@@ -2,12 +2,17 @@
 Script to plot time residual distributions for MC and real data
 in the same axis.
 
+WARNING: Dont try to put more than one energy cut on E_cut_list
+for now.
+
 created on 09/07/2026
 
 Edit Dates:
 - 09/07/2026: Script creation. For now it will compare the time
 			  residual distributions of data an MC normalized to
 			  the same area.
+
+-15/07/2026: Add residual plot to the final plot.
 '''
 
 import numpy as np
@@ -18,6 +23,29 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, ScalarFormatter
 from matplotlib import font_manager
+
+
+# ======== Aux. Function =========
+
+def set_ticks(ax, min_mark, maj_mark):
+    # ---- X axis ----
+    ax.xaxis.set_minor_locator(MultipleLocator(min_mark))
+    ax.xaxis.set_major_formatter(ScalarFormatter(maj_mark))
+
+    # ---- X axis Formatter  ----
+    formatter = ScalarFormatter()
+    formatter.set_useOffset(False)  # avoid inconvenient representation of axis values
+    ax.xaxis.set_major_formatter(formatter)
+
+    # ---- Y axis ----
+    #ax.yaxis.set_minor_locator(MultipleLocator(5))
+    #ax.yaxis.set_major_formatter(ScalarFormatter())
+
+    # ---- Show ticks on all sides ----
+    ax.tick_params(which='minor', top=True, bottom=True, left=True, right=True)
+    ax.tick_params(which='major', top=True, bottom=True, left=True, right=True)
+
+# =================
 
 
 # ====== Define the directories to read and save the data ======
@@ -35,7 +63,7 @@ E_cut_list = [5]
 R_cut_list = [5500]
 
 t_res_min_cut = -10
-t_res_max_cut = 20
+t_res_max_cut = 5
 
 # ====== Histogram Definitions ======
 bins = 80
@@ -117,17 +145,27 @@ bin_width = bin_edges[1] - bin_edges[0]
 
 for Ecut_i in E_cut_list:
     
-	fig, axes = plt.subplots(1, len(R_cut_list), figsize=(8, 6))
-	axes = np.atleast_1d(axes)
+	#fig, axes = plt.subplots(1, len(R_cut_list), figsize=(8, 6))
+	fig, (ax_top, ax_bot) = plt.subplots(2, 1,figsize=(8,9),
+                                     gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.25})
+
+	ax_top = np.atleast_1d(ax_top)
+	ax_bot = np.atleast_1d(ax_bot)
 
 	for i_dx, Rcut_i in enumerate(R_cut_list):
-		ax = axes[i_dx]
+		ax_top_i = ax_top[i_dx]
+		ax_bot_i = ax_bot[i_dx]
 
 		mc_counts = hist_mc[Ecut_i][Rcut_i]
 		data_counts = hist_data[Ecut_i][Rcut_i]
 
-		ax.hist(bin_edges[:-1], bins=bin_edges, weights=mc_counts, density=True, color='blue',
+		# MC Plot
+		ax_top_i.hist(bin_edges[:-1], bins=bin_edges, weights=mc_counts, density=True, color='blue',
 				histtype='step', linewidth=1.5, label=r'$^8$B-$\nu_e$ MC')
+
+		# MC and Data PDF Counts
+		mc_total = np.sum(mc_counts)
+		mc_pdf = mc_counts / (mc_total * bin_width) if mc_total > 0 else np.zeros_like(mc_counts)
 
 		data_total = np.sum(data_counts)
 		if data_total > 0:
@@ -135,25 +173,48 @@ for Ecut_i in E_cut_list:
 			data_pdf = data_counts / norm_factor
 			data_errors = np.sqrt(data_counts) / norm_factor
 
-			ax.errorbar(bin_centers, data_pdf, yerr=data_errors, fmt='.', color='black', ecolor='black', 
+			ax_top_i.errorbar(bin_centers, data_pdf, yerr=data_errors, fmt='.', color='black', ecolor='black', 
 						elinewidth=1.0, capsize=2, markersize=6, zorder=3, label='Real Data (Stat. Unc.)')
+			
+		# Residual Plot
+		valid_bins = mc_pdf > 0
+		residual = np.zeros_like(data_pdf)
+		res_error = np.zeros_like(data_pdf)
 
-		ax.set_yscale('log')
-		ax.set_xlabel(r'$t_{res}$ (ns)', fontdict = font_style_axis)
-		ax.set_ylabel(r'Prob. Density', fontdict = font_style_axis)
-		ax.set_xlim(t_res_min_cut, t_res_max_cut)
+		residual[valid_bins] = (data_pdf[valid_bins] - mc_pdf[valid_bins]) / mc_pdf[valid_bins]
+		res_error[valid_bins] = data_errors[valid_bins] / mc_pdf[valid_bins]
 
-		# --- Markers ---
-		ax.xaxis.set_minor_locator(MultipleLocator(ax_x_min_mark))
-		ax.xaxis.set_major_locator(MultipleLocator(ax_x_maj_mark))
+		ax_bot_i.errorbar(bin_centers, residual, yerr=res_error,
+						fmt='o', color='black', markersize=3, elinewidth=1, capsize=2)
 
-		#ax.yaxis.set_minor_locator(MultipleLocator(0.01))
-		#ax.yaxis.set_major_locator(MultipleLocator(0.05))
+		ax_bot_i.axhline(0, color='black', linestyle='--', linewidth=1)
+		ax_bot_i.axhline(0.2, color='gray', linestyle='--', linewidth=0.5, alpha=0.7) # Ejemplo de líneas de guía (20%)
+		ax_bot_i.axhline(-0.2, color='gray', linestyle='--', linewidth=0.5, alpha=0.7)
 
-		ax.tick_params(which='minor', top=True, bottom=True, left=True, right=True)
-		ax.tick_params(which='major', top=True, bottom=True, left=True, right=True)
 
-		ax.set_title(rf'Time Residual Distribution - BisMSB Data vs $^8$B-$\nu_e$ MC' + '\n' + rf'E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)', fontdict = font_style_title)
+		# --------- Axes Settings ---------
+		# Scale
+		ax_top_i.set_yscale('log')
+		ax_top_i.set_xlabel(r'$t_{res}$ (ns)', fontdict = font_style_axis)
+		ax_top_i.set_ylabel(r'Prob. Density', fontdict = font_style_axis)
+
+		#ax_bot_i.set_yscale('log')
+		#ax_bot_i.set_xlabel(r'$t_{res}$ (ns)', fontdict = font_style_axis)
+		ax_bot_i.set_ylabel(r'Residual', fontdict = font_style_axis)
+
+		# Ax. Limits
+		ax_top_i.set_xlim(t_res_min_cut, t_res_max_cut)
+		ax_bot_i.set_xlim(t_res_min_cut, t_res_max_cut)
+
+		# Ax. Ticks
+		set_ticks(ax_top_i, min_mark = ax_x_min_mark, maj_mark = ax_x_maj_mark)
+		set_ticks(ax_bot_i, min_mark = ax_x_min_mark, maj_mark = ax_x_maj_mark)
+
+		# Legend
+		ax_top_i.legend(loc='best', frameon=True, edgecolor='black', prop=font_prop)
+
+		# Title
+		ax_top_i.set_title(rf'Time Residual Distribution - BisMSB Data vs $^8$B-$\nu_e$ MC' + '\n' + rf'E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)', fontdict = font_style_title)
 
 	# Titulo General
 	#plt.suptitle(rf'Time Residual Distribution - BisMSB $^8$B-$\nu_e$ Candidates - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
