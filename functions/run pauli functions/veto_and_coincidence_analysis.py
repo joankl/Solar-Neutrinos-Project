@@ -127,6 +127,7 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     # Flat the sublists of the data_dict
     for var in data_var_save_name_list:
         data_dict[var] = [x for sublist in data_dict[var] for x in sublist]
+    data_dict['dcFlagged'] = [x for sublist in data_dict['dcFlagged'] for x in sublist]
 
     # Extract the observables of interest from the data_dict
     energy = np.array(data_dict['energy'])
@@ -429,12 +430,12 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
 
     return print('Analysis Done!')
 
-'''
+    
+
 if __name__ == '__main__':
 
-    read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis15/'
-    file_txt_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/file_name_list/sublist_18.txt'
-    save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/proof/'
+    read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/'
+    file_txt_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/file_name_list/ntuple/sublist_1.txt'
+    save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/proof/'
 
     veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir)
-'''
