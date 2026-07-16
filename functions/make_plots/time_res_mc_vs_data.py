@@ -50,10 +50,10 @@ def set_ticks(ax, min_mark, maj_mark):
 
 # ====== Define the directories to read and save the data ======
 
-read_mc_data_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
-read_real_data_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis*/ratDS_output/np_files/'
+read_mc_data_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/np_files/'
+read_real_data_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/np_files/'
 real_data_dir_list = glob.glob(read_real_data_dir)
-save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/plots/figures/'
+save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/plots/'
 
 os.makedirs(save_dir, exist_ok=True)
 
@@ -214,7 +214,7 @@ for Ecut_i in E_cut_list:
 		ax_top_i.legend(loc='best', frameon=True, edgecolor='black', prop=font_prop)
 
 		# Title
-		ax_top_i.set_title(rf'Time Residual Distribution - BisMSB Data vs $^8$B-$\nu_e$ MC' + '\n' + rf'E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)', fontdict = font_style_title)
+		ax_top_i.set_title(rf'Time Residual Distribution - 2.2PPO Data vs $^8$B-$\nu_e$ MC' + '\n' + rf'E $\geq$ {Ecut_i} (MeV) & R $\leq$ {Rcut_i*10**-3:.1f} (m)', fontdict = font_style_title)
 
 	# Titulo General
 	#plt.suptitle(rf'Time Residual Distribution - BisMSB $^8$B-$\nu_e$ Candidates - $t_{{res}}$: [{t_res_min_cut:.0f}, {t_res_max_cut:.0f}] (ns)', fontsize=13, y=1.02)
