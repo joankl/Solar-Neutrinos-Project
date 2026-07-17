@@ -431,7 +431,7 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     return print('Analysis Done!')
 
     
-
+'''
 if __name__ == '__main__':
 
     read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/'
@@ -439,3 +439,4 @@ if __name__ == '__main__':
     save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/proof/'
 
     veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir)
+'''
