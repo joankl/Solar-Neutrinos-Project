@@ -124,12 +124,14 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
             data_dict[var].append(temp_vars[var])
         data_dict['dcFlagged'].append(temp_vars['dcFlagged'])
 
-    # Flat the sublists of the data_dict
-    for var in data_var_save_name_list:
-        data_dict[var] = [x for sublist in data_dict[var] for x in sublist]
-    data_dict['dcFlagged'] = [x for sublist in data_dict['dcFlagged'] for x in sublist]
+    # Security Barrier
+    if len(data_dict['energy']) == 0:
+        print("Error: No data was successfully read from any file. Aborting analysis for this batch.")
+        return
 
     # Extract the observables of interest from the data_dict
+    #print('energy array: ', data_dict['energy'])
+
     energy = np.concatenate(data_dict['energy'])
     time = np.concatenate(data_dict['time'])
     nhits = np.concatenate(data_dict['nhits'])
