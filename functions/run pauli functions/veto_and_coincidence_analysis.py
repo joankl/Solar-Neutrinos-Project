@@ -121,8 +121,8 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
 
         # Save the filtered result on the data_dict out of the file loop:
         for var in data_var_save_name_list:
-            data_dict[var].append(temp_vars[var].tolist())
-        data_dict['dcFlagged'].append(temp_vars['dcFlagged'].tolist())
+            data_dict[var].append(temp_vars[var])
+        data_dict['dcFlagged'].append(temp_vars['dcFlagged'])
 
     # Flat the sublists of the data_dict
     for var in data_var_save_name_list:
@@ -130,13 +130,17 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     data_dict['dcFlagged'] = [x for sublist in data_dict['dcFlagged'] for x in sublist]
 
     # Extract the observables of interest from the data_dict
-    energy = np.array(data_dict['energy'])
-    time = np.array(data_dict['time'])
-    nhits = np.array(data_dict['nhits'])
-    posx, posy, posz = np.array(data_dict['posx']), np.array(data_dict['posy']), np.array(data_dict['posz_av'])
-    runID = np.array(data_dict['runID'])
-    eventID = np.array(data_dict['eventID'])
-    dcFlagged = np.array(data_dict['dcFlagged'])
+    energy = np.concatenate(data_dict['energy'])
+    time = np.concatenate(data_dict['time'])
+    nhits = np.concatenate(data_dict['nhits'])
+    posx, posy, posz = np.concatenate(data_dict['posx']), np.concatenate(data_dict['posy']), np.concatenate(data_dict['posz_av'])
+    runID = np.concatenate(data_dict['runID'])
+    eventID = np.concatenate(data_dict['eventID'])
+    dcFlagged = np.concatenate(data_dict['dcFlagged'])
+
+    # Free memory
+    del data_dict
+    del temp_vars
 
     #print(f'nhits data = {nhits}')
 
@@ -314,15 +318,19 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
 
     mask_cut = 0xD82100000162C6
     dcflag_condition = ((int(mask_cut) & dcFlagged) == int(mask_cut))
+    energy_condition = (energy >= 1.0)
+    nhits_condition = (nhits >= 20)
 
-    energy = energy[dcflag_condition]
-    time = time[dcflag_condition]
-    nhits = nhits[dcflag_condition]
-    posx = posx[dcflag_condition]
-    posy = posy[dcflag_condition]
-    posz = posz[dcflag_condition]
-    runID = runID[dcflag_condition]
-    eventID = eventID[dcflag_condition]
+    condition = dcflag_condition & energy_condition & nhits_condition
+
+    energy = energy[condition]
+    time = time[condition]
+    nhits = nhits[condition]
+    posx = posx[condition]
+    posy = posy[condition]
+    posz = posz[condition]
+    runID = runID[condition]
+    eventID = eventID[condition]
 
     # ---- Coincidence Cuts ----
     energy_prompt_inf_cut = 1.0
@@ -431,12 +439,11 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     return print('Analysis Done!')
 
     
-'''
+
 if __name__ == '__main__':
 
     read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/'
-    file_txt_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/file_name_list/ntuple/sublist_1.txt'
+    file_txt_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/file_name_list/ntuple_for_veto/sublist_1.txt'
     save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/proof/'
 
     veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir)
-'''
