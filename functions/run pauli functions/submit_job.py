@@ -4,9 +4,9 @@ import re
 import time
 
 # --- Directory Config ---
-read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/'  #dir where the real data is
-sublist_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/file_name_list/ntuple_for_veto/' #dir where the lists with the file names are
-save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ntuple_output/bkg_candidates/' #dir where we want the output_i/ be generated and save the results
+read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/'  #dir where the real data is
+sublist_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/file_name_list/ntuple_for_veto/' #dir where the lists with the file names are
+save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/results/bkg_candidates/' #dir where we want the output_i/ be generated and save the results
 
 # Container config. for  Workers
 CONTAINER_SIF = "/lstore/sno/joankl/RAT/containers/rat_8.1.0.sif" # Container Directory
@@ -14,7 +14,7 @@ APPTAINER_EXEC = "/cvmfs/oasis.opensciencegrid.org/mis/apptainer/bin/apptainer" 
 MY_LIBS = "/lstore/sno/joankl/my_pylibs/" # Complementar python libraries
 SCRIPT_DIR = os.getcwd() # Return the current directory path, where the script and rat_read_ntuples.py are.
 
-data_type = 'HS_atm_PPO'  # Definition of the type of data being processed. Useful to distinguish the job types 
+data_type = 'veto_BisMSB_15bMR'  # Definition of the type of data being processed. Useful to distinguish the job types 
 
 os.makedirs(f'logs_{data_type}', exist_ok=True)
 
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     sublist_files.sort(key=orden_natural)  # Orden natural por número i
     print(sublist_files)
 
-    for i_dx, sublist in enumerate([sublist_files[0]]):
+    for i_dx, sublist in enumerate(sublist_files):
         sublist_path = os.path.join(sublist_dir, sublist)
 
         # Extraer el número i

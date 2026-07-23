@@ -215,7 +215,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 
 
     return print('extraction concluded!')
-
+energy_corrected
 '''
 if __name__ == "__main__":
 

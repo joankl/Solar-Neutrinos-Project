@@ -48,8 +48,8 @@ def ReconCalibrator(posx, posy, posz, energy):
     '''
 
     # ==== Define material and version of the correction ====
-    #MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
-    MATERIAL_NAME = "labppo_2p2_scintillator"
+    MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
+    #MATERIAL_NAME = "labppo_2p2_scintillator"
     CORRECTION_VER = 3  
     IS_DATA = True   # False if MC
 
@@ -494,7 +494,7 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     return print('Analysis Done!')
 
     
-
+'''
 if __name__ == '__main__':
 
     read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/'
@@ -502,3 +502,4 @@ if __name__ == '__main__':
     save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/proof/'
 
     veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir)
+'''
