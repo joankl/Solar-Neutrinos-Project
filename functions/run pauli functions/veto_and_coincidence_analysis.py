@@ -7,6 +7,9 @@ The vetoing algorithm will save the number of found events and followers in a ve
 dictionary. Also, it will save the runID and the GTID.
 The coincidence analysis will save the GTID of the event as well as the energy, position,
 and time of the found prompt and delay.
+
+Updates:
+- 23/07/2026 : Add the energy position-dependent correction
 '''
 
 import uproot
@@ -15,6 +18,8 @@ import glob
 import re
 import os
 import pickle
+import rat 
+import ROOT
 
 
 # =================== Auxiliar Functions ===================
@@ -29,6 +34,51 @@ def natural_order(file):
     """Function to arange the file names by order if run and subrun"""
     return [int(text) if text.isdigit() else text.lower() for text in re.split('(\d+)', file)]
 
+def ReconCalibrator(posx, posy, posz, energy):
+    '''
+    Function designed to return the energy corrected from
+    Daniel Coockman energy callibrator
+
+    parameters:
+    - posx,y,z: numpy array coordinates of the reconstructed event position
+    - energy: numpy array reconstructed event energy
+
+    return:
+    numpy array with the corrected energy of the events
+    '''
+
+    # ==== Define material and version of the correction ====
+    #MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
+    MATERIAL_NAME = "labppo_2p2_scintillator"
+    CORRECTION_VER = 3  
+    IS_DATA = True   # False if MC
+
+    du = rat.utility()
+
+    # Load the Energy Calibrator
+    calibrator = du.GetReconCalibrator()
+
+    # offset correctly: it’s easiest if we just give the event positions in AV coords already.
+    P3D = ROOT.RAT.DU.Point3D
+    av_id = P3D.GetSystemId("av")
+
+    # --- Loop over the events to apply the energy calibration ---
+    n_evs = len(energy)
+    energy_corr = np.empty(n_evs, dtype = np.float64)
+
+    for i in range(n_evs):
+        position = P3D(av_id, 
+            float(posx[i]), 
+            float(posy[i]), 
+            float(posz[i]))
+
+        energy_corr[i] = calibrator.CalibrateEnergyRTF(IS_DATA, 
+            float(energy[i]),
+            position,
+            MATERIAL_NAME,
+            CORRECTION_VER)
+
+    return energy_corr
 # ==========================================================
 
 def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
@@ -315,6 +365,9 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     runID = np.delete(runID, full_index_to_remove)
     eventID = np.delete(eventID, full_index_to_remove)
     dcFlagged = np.delete(dcFlagged, full_index_to_remove)
+
+    # Change the reconstructed energy by the corrected energy
+    energy = ReconCalibrator(posx, posy, posz, energy)
 
     # ---- Mask Cut ----
 
