@@ -9,10 +9,10 @@ import glob
 import pickle
 
 
-main_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/results/bkg_candidates/output_*/'
-save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/results/resume_files/'
+main_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15_bMR/ntuple_output/bkg_candidates/output_*/'
+save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15_bMR/ntuple_output/resume_files/'
 
-#dict_list = ['prompt_IBD_dict', 'delay_IBD_dict'] # Name of the dictionaries to be readen
+#dict_list = ['prompt_coinc_dict', 'delay_coinc_dict'] # Name of the dictionaries to be readen
 #dict_keys = ['runID', 'eventID', 'energy', 'posx', 'posy', 'posz', 'time']
 
 dict_list = ['atm_dict', 'hs_dict'] # Name of the dictionaries to be readen
@@ -34,6 +34,8 @@ for dict_i in dict_list:
 	# Loop over the directory list
 	for dir_i in full_dict_dir_list:
 
+		print(f"Trying to read: {dir_i}")
+
 		# Load Dictionary file
 		with open(dir_i, 'rb') as f:
 			dict_file = pickle.load(f)
@@ -50,13 +52,15 @@ for dict_i in dict_list:
 		if (isinstance(val, list) and len(val) > 0 and isinstance(val[0], (list, tuple))):
 			dict_to_save[var_i] = [x for sublist in dict_to_save[var_i] for x in sublist]
 
-		print(f'final variable {var_i} with dict entry {dict_to_save[var_i]}')
+		#print(f'final variable {var_i} with dict entry {dict_to_save[var_i]}')
 
 	# Save the resumed dict
 	with open(save_dir + dict_i + '.pkl', 'wb') as f:
 		pickle.dump(dict_to_save, f)
 
 	print(f'dictionary {dict_i}.pkl saved succesfully!')
+
+print('Done! :)')
 
 
 
