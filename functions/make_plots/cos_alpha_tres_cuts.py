@@ -32,7 +32,7 @@ E_inf_cut = 5
 E_cut_list = [5, 6, 8, 10]
 R_cut_list = [5500, 4500, 3500]
 
-t_res_cut_list = [(-5,5), (-5,4), (-5,3), (-5,2), (-5,1)]
+t_res_cut_list = [(-3,4), (-3,3), (-3,2), (-3,1)]
 
 # 1 - Prepare the structure to save the counts of the histograms.
 #Structure is  the dictionary with entries dict[t_res_cut_list]
