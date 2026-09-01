@@ -14,7 +14,7 @@ import glob
 import os
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
+from matplotlib.ticker import MultipleLocator, LogFormatterMathtext
 import matplotlib.font_manager as fm
 
 
@@ -63,7 +63,7 @@ plt.rcParams['ytick.left'] = True
 plt.rcParams['ytick.right'] = True
 
 # Paleta amigable para daltonismo para múltiples cortes/modelos
-colors = ['#0072B2', '#D55E00', '#009E73', '#CC79A7']
+colors = ['#0072B2', '#D55E00', '#009E73', '#D50000']
 linestyles = ['-', '--', '-.', ':']
 # ==========================================
 
@@ -143,6 +143,8 @@ for i, t_res_cut_i in enumerate(t_res_cut_list):
     )
 
 ax.set_yscale('log')
+ax.yaxis.set_major_formatter(LogFormatterMathtext())
+
 ax.set_xlabel(r'$\cos(\alpha)$', size=26)
 ax.set_ylabel('Probability Density', size=26)
 ax.set_xlim(-1, 1)
