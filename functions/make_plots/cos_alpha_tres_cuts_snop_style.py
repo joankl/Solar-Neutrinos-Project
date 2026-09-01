@@ -15,18 +15,29 @@ import os
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
+import matplotlib.font_manager as fm
+
 
 # ==========================================
 # --- SNO+ Global Plot Settings ---
 # ==========================================
+
+font_path = 'Times_New_Roman_Normal.ttf'
+
+if os.path.exists(font_path):
+  fm.fontManager.addfont(font_path)
+else:
+  # Alternativa: colocar aquí la ruta absoluta si está en otro directorio del cluster
+  print(f'Advertencia: Archivo de fuente no encontrado en {font_path}')
+
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = ['Times New Roman']
 plt.rcParams['mathtext.fontset'] = 'stix'
 plt.rcParams['axes.unicode_minus'] = False 
 
 # Standard SNO+ tick labels size
-plt.rcParams['xtick.labelsize'] = 24
-plt.rcParams['ytick.labelsize'] = 24
+plt.rcParams['xtick.labelsize'] = 21
+plt.rcParams['ytick.labelsize'] = 21
 
 plt.rcParams["xaxis.labellocation"] = 'right'
 plt.rcParams["yaxis.labellocation"] = 'top'
@@ -141,18 +152,18 @@ ax.xaxis.set_minor_locator(MultipleLocator(0.1))
 ax.xaxis.set_major_locator(MultipleLocator(0.5))
 
 # Legend (frameon=False obligatorio)
-ax.legend(loc='upper left', frameon=False, fontsize=15)
+ax.legend(loc='upper left', frameon=False, fontsize=16)
 
 # Título formal
 ax.set_title(
     rf'Solar $^8$B-$\nu_e$ Directionality - 2.2PPO MC' + '\n' + 
     rf'E $\geq$ {E_inf_cut} MeV & R $\leq$ 5.5 m', 
-    size=17, 
+    size=25, 
     y=1.02
 )
 
 # Watermark obligatoria de SNO+
-ax.text(0.05, 0.90, "SNO+ Preliminary", transform=ax.transAxes, color='black', size=22)
+ax.text(0.05, 0.05, "SNO+ Preliminary", transform=ax.transAxes, color='black', size=22)
 
 # Guardado vectorial en PDF
 save_path = os.path.join(save_dir, 'cos_alpha_dir_tres_cuts_snop_style.pdf')

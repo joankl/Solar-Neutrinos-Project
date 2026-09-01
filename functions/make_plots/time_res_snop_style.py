@@ -138,7 +138,7 @@ for Ecut_i in E_cut_list:
         t_res_cher_max,
         color='gray',
         alpha=0.4,
-        label='Most probable Cherenkov hits',
+        label= 'Most probable Cherenkov hits' + '\n' + rf'$t_{{res}} \in [{t_res_cher_min}, {t_res_cher_max}]$ ns',
     )
     ax.axvline(t_res_cher_min, color='gray', linestyle='--', linewidth=1.4)
     ax.axvline(t_res_cher_max, color='gray', linestyle='--', linewidth=1.4)
@@ -175,11 +175,11 @@ for Ecut_i in E_cut_list:
     )
 
     # Legend (No frame box)[cite: 1]
-    ax.legend(loc='lower right', frameon=False, fontsize=16)
+    ax.legend(loc='center right', frameon=False, fontsize=16)
 
     # Mandatory SNO+ Preliminary watermark[cite: 1]
     ax.text(
-        0.08,
+        0.25,
         0.90,
         'SNO+ Preliminary',
         transform=ax.transAxes,
