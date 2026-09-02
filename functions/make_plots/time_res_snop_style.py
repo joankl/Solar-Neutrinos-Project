@@ -8,6 +8,8 @@ Created on 01/09/2026
 import glob
 import os
 import matplotlib.font_manager as fm
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 import numpy as np
@@ -15,13 +17,11 @@ import numpy as np
 # ==========================================
 # --- SNO+ Font Registration & Global Settings ---
 # ==========================================
-# Cargar y registrar explícitamente el archivo .ttf en la sesión de Matplotlib
 font_path = 'Times_New_Roman_Normal.ttf'
 
 if os.path.exists(font_path):
   fm.fontManager.addfont(font_path)
 else:
-  # Alternativa: colocar aquí la ruta absoluta si está en otro directorio del cluster
   print(f'Advertencia: Archivo de fuente no encontrado en {font_path}')
 
 plt.rcParams['font.family'] = 'serif'
@@ -84,11 +84,9 @@ t_res_max_cut = 100
 t_res_cher_min = -3
 t_res_cher_max = 1
 
-# 1 - Prepare the structure to save the counts of the histograms.
 bin_edges = np.linspace(t_res_min_cut, t_res_max_cut, bins + 1)
 hist_data = {E: {R: np.zeros(bins) for R in R_cut_list} for E in E_cut_list}
 
-# 2 - Available files and correct Correspondence of files
 base_files = glob.glob(read_dir + 'cos_alpha_*.npy')
 indices = [
     os.path.basename(f).replace('cos_alpha_', '').replace('.npy', '')
@@ -98,7 +96,6 @@ indices = [
 print(f'Files to be readen: \n {base_files}')
 print(f'Total de chunks a procesar: {len(indices)}')
 
-# 3 - Loading info by chuncks
 print('Reading and Histogramming Data in Chunks...')
 
 for read_dir_i in read_dir_list:
@@ -130,29 +127,24 @@ for Ecut_i in E_cut_list:
     ax = axes[i_dx]
     ax.minorticks_on()
 
-    # ==========================================
-    # --- Cherenkov Region Highlight ---
-    # ==========================================
+    # Region Highlight
     ax.axvspan(
         t_res_cher_min,
         t_res_cher_max,
         color='gray',
         alpha=0.4,
-        label= 'Most probable Cherenkov hits' + '\n' + rf'$t_{{res}} \in [{t_res_cher_min}, {t_res_cher_max}]$ ns',
     )
     ax.axvline(t_res_cher_min, color='gray', linestyle='--', linewidth=1.4)
     ax.axvline(t_res_cher_max, color='gray', linestyle='--', linewidth=1.4)
-    # ==========================================
 
     counts = hist_data[Ecut_i][Rcut_i]
 
-    # MC single-model histogram
+    # MC Histogram
     ax.hist(
         bin_edges[:-1],
         bins=bin_edges,
         weights=counts,
         density=True,
-        label=r'$^8$B-$\nu_e$ MC',
         **mc_histogram_style,
     )
 
@@ -167,17 +159,39 @@ for Ecut_i in E_cut_list:
 
     # Title
     ax.set_title(
-        r'Solar $^8$B-$\nu_e$ - 2.2PPO MC'
+        r'Solar $^8$B-$\nu_e$ - 2.2 g/L PPO MC'
         + '\n'
         + rf'E $\geq$ {Ecut_i} MeV & R $\leq$ {Rcut_i*1e-3:.1f} m',
         size=25,
         y=1.02,
     )
 
-    # Legend (No frame box)[cite: 1]
-    ax.legend(loc='center right', frameon=False, fontsize=16)
+    # Custom legend with line proxy
+    cherenkov_label = (
+        'Most probable Cherenkov hits\n'
+        rf'$t_{{\rm res}} \in [{t_res_cher_min}, {t_res_cher_max}]$ ns'
+    )
+    custom_handles = [
+        Line2D(
+            [0],
+            [0],
+            color=mc_histogram_style['color'],
+            linestyle='-',
+            linewidth=mc_histogram_style['linewidth'],
+            label=r'$^8$B-$\nu_e$ MC',
+        ),
+        Patch(
+            facecolor='gray',
+            edgecolor='none',
+            alpha=0.4,
+            label=cherenkov_label,
+        ),
+    ]
+    ax.legend(
+        handles=custom_handles, loc='center right', frameon=False, fontsize=16
+    )
 
-    # Mandatory SNO+ Preliminary watermark[cite: 1]
+    # SNO+ Preliminary watermark[cite: 1]
     ax.text(
         0.25,
         0.90,
@@ -187,7 +201,7 @@ for Ecut_i in E_cut_list:
         size=22,
     )
 
-  # Save to vector PDF format[cite: 1]
+  # Save vector PDF[cite: 1]
   save_path = os.path.join(
       save_dir,
       f'time_res_{t_res_min_cut}_{t_res_max_cut}_ns_E_{Ecut_i}_MeV_R_{Rcut_i}_mm_snopl_style.pdf',
