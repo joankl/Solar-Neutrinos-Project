@@ -149,7 +149,7 @@ for Ecut_i in E_cut_list:
     )
 
     # Labels & limits
-    ax.set_xlabel(r'$t_{\rm res}$ (ns)', size=23)
+    ax.set_xlabel(r'$t_{\rm res}$ [ns]', size=23)
     ax.set_ylabel('Probability Density', size=23)
     ax.set_xlim(t_res_min_cut, t_res_max_cut)
 
