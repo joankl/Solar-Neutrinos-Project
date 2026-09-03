@@ -158,13 +158,12 @@ for Ecut_i in E_cut_list:
     ax.xaxis.set_major_locator(MultipleLocator(25))
 
     # Title
-    ax.set_title(
-        r'Solar $^8$B-$\nu_e$ - 2.2 g/L PPO MC'
-        + '\n'
-        + rf'E $\geq$ {Ecut_i} MeV & R $\leq$ {Rcut_i*1e-3:.1f} m',
-        size=25,
-        y=1.02,
-    )
+    #ax.set_title(
+    #    r'Solar $^8$B-$\nu_e$ - 2.2 g/L PPO MC'
+    #    + '\n'
+    #    + rf'E $\geq$ {Ecut_i} MeV & R $\leq$ {Rcut_i*1e-3:.1f} m',
+    #    size=25,
+    #    y=1.02)
 
     # Custom legend with line proxy
     cherenkov_label = (
@@ -191,21 +190,13 @@ for Ecut_i in E_cut_list:
         handles=custom_handles, loc='center right', frameon=False, fontsize=16
     )
 
-    # SNO+ Preliminary watermark[cite: 1]
-    ax.text(
-        0.25,
-        0.90,
-        'SNO+ Preliminary',
-        transform=ax.transAxes,
-        color='black',
-        size=22,
-    )
+    # SNO+ Preliminary watermark and legend of data type
+    ax.text(0.25,0.90,'SNO+ Preliminary',transform=ax.transAxes,color='black',size=22)
+
+    ax.text(0.25, 0.83, "2.2 g/L PPO MC", transform=ax.transAxes, color='black', size=15)
 
   # Save vector PDF[cite: 1]
-  save_path = os.path.join(
-      save_dir,
-      f'time_res_{t_res_min_cut}_{t_res_max_cut}_ns_E_{Ecut_i}_MeV_R_{Rcut_i}_mm_snopl_style.pdf',
-  )
+  save_path = os.path.join(save_dir, f'time_res_{t_res_min_cut}_{t_res_max_cut}_ns_E_{Ecut_i}_MeV_R_{Rcut_i}_mm_snopl_style.pdf')
   plt.savefig(save_path, format='pdf', bbox_inches='tight')
 
   plt.close(fig)
