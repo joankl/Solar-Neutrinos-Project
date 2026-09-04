@@ -193,7 +193,7 @@ for Ecut_i in E_cut_list:
     # SNO+ Preliminary watermark and legend of data type
     ax.text(0.25,0.90,'SNO+ Preliminary',transform=ax.transAxes,color='black',size=22)
 
-    ax.text(0.25, 0.83, "2.2 g/L PPO MC", transform=ax.transAxes, color='black', size=15)
+    ax.text(0.25, 0.83, "2.2 g/L PPO", transform=ax.transAxes, color='black', size=15)
 
   # Save vector PDF[cite: 1]
   save_path = os.path.join(save_dir, f'time_res_{t_res_min_cut}_{t_res_max_cut}_ns_E_{Ecut_i}_MeV_R_{Rcut_i}_mm_snopl_style.pdf')
