@@ -1,63 +1,66 @@
 import os
-import sys
 import re
 import time
+import sys
 
 # --- Directory Config ---
-read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis15/'  #dir where the real data is
-sublist_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/file_name_list/ntuple_for_veto/' #dir where the lists with the file names are
-save_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/ntuple_output/bkg_candidates/' #dir where we want the output_i/ be generated and save the results
+read_data_dir = '/share/neutrino/snoplus/MonteCarlo/FullFill_2p2_801/ScintFit_2p2B8_Solar_NueRun/'  #dir where the real data is
+sublist_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/file_name_list/ntuple/' #dir where the list  with the file names is
+save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ntuple_output/osc/ntuple_results/' #dir where we want the output_i/ be generated and save the results
+pselmaa_data_dir = '/lstore/sno/joankl/solar_analysis/flux_prediction/PSelmaa/output_files/pselmaa_test_sun_pee_B16_GS98_b8.txt'
 
 # Container config. for  Workers
 CONTAINER_SIF = "/lstore/sno/joankl/RAT/containers/rat_8.1.0.sif" # Container Directory
-#APPTAINER_EXEC = "/cvmfs/oasis.opensciencegrid.org/mis/apptainer/bin/apptainer" # Look apptainer in the wn node
-APPTAINER_EXEC = 'apptainer'
+APPTAINER_EXEC = "apptainer" # Look apptainer in the wn node
 MY_LIBS = "/lstore/sno/joankl/my_pylibs/" # Complementar python libraries
 SCRIPT_DIR = os.getcwd() # Return the current directory path, where the script and rat_read_ntuples.py are.
 
-data_type = 'veto_BisMSB_15'  # Definition of the type of data being processed. Useful to distinguish the job types 
-
+data_type = '8BNueOsc_PPO_ntuple'
 os.makedirs(f'logs_{data_type}', exist_ok=True)
 
 def orden_natural(archivo):
-        """Función para ordenar archivos naturalmente por número de run/subrun."""
-        return [int(texto) if texto.isdigit() else texto.lower() for texto in re.split('(\d+)', archivo)]
+    return [int(texto) if texto.isdigit() else texto.lower() for texto in re.split(r'(\d+)', archivo)]
 
 if __name__ == "__main__":
 
-    # Buscar todos los sublist_i.txt
+    # load the name of files to be analyzed and sort them by natural order (run_subrun)
     sublist_files = [f for f in os.listdir(sublist_dir) if f.startswith("sublist_") and f.endswith(".txt")]
-    sublist_files.sort(key=orden_natural)  # Orden natural por número i
-    print(sublist_files)
+    sublist_files.sort(key=orden_natural)
+    print(f"Found {len(sublist_files)} sublists to analyze.")
 
+    # Loop over the list of files
     for i_dx, sublist in enumerate(sublist_files):
         sublist_path = os.path.join(sublist_dir, sublist)
-
-        # Extraer el número i
+        
+        # Extract index
         match = re.search(r"sublist_(\d+)\.txt", sublist)
         sublist_index = match.group(1) if match else "unknown"
-
-        # Crear subdirectorio para guardar outputs: /save_dir/output_i/
-        sub_save_dir = save_dir + f"output_{sublist_index}/"
-        os.makedirs(sub_save_dir, exist_ok=True)
         
-        #Run sbatch scrip Bellow --------------------------------------
-
+        sub_save_dir = os.path.join(save_dir, f"output_{sublist_index}/")
+        
+        # Temporal Scrf"python3 -c \"{py_one_liner}\" \"{read_data_dir}\" \"{sublist_path}\" \"{sub_save_dir}\""ipt Name
         script_name = f"run_job_{data_type}_{i_dx}.sh"
 
         # Call the Analysis function and pass arguments through sys
         py_one_liner = ("import sys; "
-            "from veto_and_coincidence_analysis import veto_and_coincidence_analysis; "
-            "veto_and_coincidence_analysis(sys.argv[1], sys.argv[2], sys.argv[3])")
-
+            "from rat_read_ntuplesMC_with_osc import extract_data; "
+            "extract_data(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])")
+        
+        # --- HERE IS THE MAGIC	 ---
+	# We'll write the script that apptainer will execute
+	# We use -B to define our disk on the container and we config. the environment through the command bash -c (open a consol)
+        
+        # We need to source geant4, root, rat, and  my python libs to run rat_readntuples.py within the cointaner
         command_inside_container = (
             "source /usr/local/bin/geant4.sh && "
             "source /root-bin/bin/thisroot.sh && "
             "source /rat/env.sh && "
             f"export PYTHONPATH=$PYTHONPATH:{MY_LIBS}:{SCRIPT_DIR} && "
-            f"python3 -c \"{py_one_liner}\" \"{read_dir}\" \"{sublist_path}\" \"{sub_save_dir}\""
+            f"python -c \"{py_one_liner}\" \"{read_data_dir}\" \"{sublist_path}\" \"{sub_save_dir}\" \"{pselmaa_data_dir}\""
         )
 
+        # The line f"python3 -c \"{py_one_liner}\" \"{read_dir}\" \"{sublist_path}\" \"{sub_save_dir}\""
+        # make uses of sys, to define the following consol outputs as the inputs of extract_data functions.
 
         # Content of script SBATCH
         script_content = f"""#!/bin/bash
@@ -92,6 +95,3 @@ echo "Job finished"
         # os.remove(script_name) 
         
         time.sleep(1) # Pequeña pausa para no saturar al scheduler
-
-
-

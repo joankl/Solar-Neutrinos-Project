@@ -21,6 +21,8 @@ THIS SCRIP COMPUTES DE OSCILLATION ON nu_mu flavor!
 Edit Dates:
 - 23/01/2026 Include RAT code to implement the energy correction
 - 22/05/2026 Include itr cut above 0.2
+- 08/09/2026: remove ITR Cut and stablish a wide energy cut. Perform
+              more complicated cuts locally.
 '''
 
 import numpy as np
@@ -63,7 +65,7 @@ def extract_data(read_data_dir, file_txt_dir, save_dir, pselmaa_data_dir):
 
     def orden_natural(archivo):
         """Función para ordenar archivos naturalmente por número de run/subrun."""
-        return [int(texto) if texto.isdigit() else texto.lower() for texto in re.split('(\d+)', archivo)]
+        return [int(texto) if texto.isdigit() else texto.lower() for texto in re.split(r'(\d+)', archivo)]
 
     def extract_subrunID(filename_list):
         """Extrae el subrunID de cada archivo en la lista."""
@@ -94,7 +96,7 @@ def extract_data(read_data_dir, file_txt_dir, save_dir, pselmaa_data_dir):
         '''
 
         # ==== Define material and version of the correction ====
-        MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
+        MATERIAL_NAME = "labppo_2p2_scintillator"
         CORRECTION_VER = 3   # VER = 3 for bisMSB data/MC
         IS_DATA = False   # False if MC
 
@@ -132,7 +134,7 @@ def extract_data(read_data_dir, file_txt_dir, save_dir, pselmaa_data_dir):
                           'energy', 'posr_av', 'posx', 'posy', 'posz_av', 'parentKE1', 'itr']
 
     # ------- List of the variables to save -------
-    var_save_name_list = ['energy', 'posr_av','posx', 'posy', 'posz_av', 'parentKE1']
+    var_save_name_list = ['energy', 'posr_av','posx', 'posy', 'posz_av', 'parentKE1', 'itr']
 
     # Diccionary to save the acummulated  data
     data_dict = {var: np.array([]) for var in var_save_name_list  + ['n_init_evs']}
@@ -217,19 +219,22 @@ def extract_data(read_data_dir, file_txt_dir, save_dir, pselmaa_data_dir):
         nhits_min = 20
         nhits_condition = (temp_vars['nhits'] >= nhits_min)
         
-        energy_cut = 0 #MeV
-        energy_condition = (temp_vars['energy'] >= energy_cut)
+        energy_inf_cut = 0 #MeV
+        energy_sup_cut = 20 #MeV
+
+        energy_condition = (temp_vars['energy'] >= energy_inf_cut) & (temp_vars['energy'] <= energy_sup_cut)
+
 
         posr_cut = 5700.0 # mm
         posr_condition = (temp_vars['posr_av'] <= posr_cut)
 
-        itr_cut = 0.2
-        itr_condition = (temp_vars['itr'] >= itr_cut)
+        #itr_cut = 0.2
+        #itr_condition = (temp_vars['itr'] >= itr_cut)
 
         #mask_cut = 0xD82100000162C6
         #dcflag_condition = ((int(mask_cut) & temp_vars['dcFlagged']) == int(mask_cut))
         
-        general_condition = valid_condition & nhits_condition & energy_condition & posr_condition & itr_condition #& dcflag_condition
+        general_condition = valid_condition & nhits_condition & energy_condition & posr_condition #& itr_condition #& dcflag_condition
 
         # ========== Apply cut conditions and save the data ==========
 

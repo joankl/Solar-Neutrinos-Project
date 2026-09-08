@@ -10,6 +10,8 @@ Then, the script will only work for RAT above v8
 Edit Dates:
 - 23/01/2026 Include RAT code to implement the energy correction
 - 22/05/2026 Include ITR Cut above 0.2
+- 08/09/2026 Remove the ITR cut and defined wider (exagerated) energy 
+             cuts. Perform more complicated cuts locally.
 '''
 
 import numpy as np
@@ -49,7 +51,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 
     def orden_natural(archivo):
         """Función para ordenar archivos naturalmente por número de run/subrun."""
-        return [int(texto) if texto.isdigit() else texto.lower() for texto in re.split('(\d+)', archivo)]
+        return [int(texto) if texto.isdigit() else texto.lower() for texto in re.split(r'(\d+)', archivo)]
 
     def extract_subrunID(filename_list):
         """Extrae el subrunID de cada archivo en la lista."""
@@ -80,8 +82,8 @@ def extract_data(read_dir, file_txt_dir, save_dir):
         '''
 
         # ==== Define material and version of the correction ====
-        MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
-        CORRECTION_VER = 3   # VER = 3 for bisMSB data/MC
+        MATERIAL_NAME = "labppo_2p2_scintillator" 
+        CORRECTION_VER = 3  
         IS_DATA = False   # False if MC
 
         du = rat.utility()
@@ -119,7 +121,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
                           'parentKE1', 'mcke1', 'itr']
 
     # ------- List of the variables to save -------
-    var_save_name_list = ['energy', 'posr_av','posx', 'posy', 'posz_av', 'parentKE1', 'mcke1']
+    var_save_name_list = ['energy', 'posr_av','posx', 'posy', 'posz_av', 'parentKE1', 'mcke1', 'itr']
 
     # Diccionary to save the acummulated  data
     data_dict = {var: np.array([]) for var in var_save_name_list + ['n_init_evs']}
@@ -164,19 +166,21 @@ def extract_data(read_dir, file_txt_dir, save_dir):
         nhits_min = 20
         nhits_condition = (temp_vars['nhits'] >= nhits_min)
         
-        energy_cut = 0 #MeV
-        energy_condition = (temp_vars['energy'] >= energy_cut)
+        energy_inf_cut = 0 #MeV
+        energy_sup_cut = 20 #MeV
+
+        energy_condition = (temp_vars['energy'] >= energy_inf_cut) & (temp_vars['energy'] <= energy_sup_cut)
 
         posr_cut = 5700.0 # mm
         posr_condition = (temp_vars['posr_av'] <= posr_cut)
 
-        itr_cut = 0.2
-        itr_condition = (temp_vars['itr'] >= itr_cut)
+        #itr_cut = 0.2
+        #itr_condition = (temp_vars['itr'] >= itr_cut)
 
         #mask_cut = 0xD82100000162C6
         #dcflag_condition = ((int(mask_cut) & temp_vars['dcFlagged']) == int(mask_cut))
         
-        general_condition = valid_condition & nhits_condition & energy_condition & posr_condition & itr_condition
+        general_condition = valid_condition & nhits_condition & energy_condition & posr_condition #& itr_condition
 
         # ========== Apply cut conditions and save the data ==========
 
@@ -196,7 +200,7 @@ def extract_data(read_dir, file_txt_dir, save_dir):
         posy = data_dict['posy']
         posz = data_dict['posz_av']
 
-        #data_dict['energy_corrected'] = ReconCalibrator(posx, posy, posz, energy)
+        data_dict['energy_corrected'] = ReconCalibrator(posx, posy, posz, energy)
 
         # Save the number of Initial Events
         data_dict['n_init_evs'] = np.append(data_dict['n_init_evs'], temp_vars['n_init_evs'])
@@ -208,14 +212,14 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 
         for var_sv in var_save_name_list:
             np.save(os.path.join(save_dir, var_sv), data_dict[var_sv])
-        #np.save(os.path.join(save_dir, 'energy_corrected'), data_dict['energy_corrected'])
+        np.save(os.path.join(save_dir, 'energy_corrected'), data_dict['energy_corrected'])
 
         # Save the generated number of events
         np.save(os.path.join(save_dir, 'n_init_evs'), np.array([n_init_evs]))
 
 
     return print('extraction concluded!')
-energy_corrected
+
 '''
 if __name__ == "__main__":
 
