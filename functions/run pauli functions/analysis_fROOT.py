@@ -131,7 +131,7 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	del pmt_id, pmt_type, pmt_type_condition # Liberar memoria
 
 	# general cut conditions
-	hit_pmt_id_condition = np.in1d(observables['hit_pmtid'], pmt_id_valid)
+	hit_pmt_id_condition = np.isin(observables['hit_pmtid'], pmt_id_valid)
 	#energy_condition = (observables['energy_corr'] >= energy_inf_cut) & (observables['energy_corr'] <= energy_sup_cut)
 	time_res_condition = (observables['hit_residual'] >= time_res_inf_cut) & (observables['hit_residual'] <= time_res_sup_cut)
 	#qhs_condition = (observables['hit_pmtQHS'] >= qhs_inf_cut) & (observables['hit_pmtQHS'] <= qhs_sup_cut)
@@ -189,8 +189,8 @@ if __name__ == '__main__':
 
 	data_type = "real_data_bisMSB"
 
-	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/ratDS_output/root_files/solar_analysis_real_data_bisMSB.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis15/ratDS_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_output/root_files/solar_analysis_real_data_bisMSB.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_output/np_files/'
 
 	read_root(fin_dir, fout_dir, fcounter = 0)
 
