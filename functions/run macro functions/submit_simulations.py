@@ -23,7 +23,7 @@ base_dir = "/lstore/sno/joankl/solar_analysis/mc_data/2p2_ppo/electrons/" # work
 RAT_contained_dir = "/lstore/sno/joankl/RAT/containers/rat_8.3.1_dir"
 
 # command to execute the container
-container_cmd = f"apptainer exec {RAT_contained_dir} rat"
+container_cmd = f"apptainer run {RAT_contained_dir} rat"
 
 # Creation of directories where to save the files
 def create_directories():
@@ -79,14 +79,13 @@ def generate_slurm_script(energy, job_idx, macro_path):
     
     slurm_content = f"""#!/bin/bash
 #SBATCH --job-name=sno_e{energy}_{job_idx}
-#SBATCH --output={base_dir}/logs/job_e{energy}_{job_idx}_%j.out
-#SBATCH --error={base_dir}/logs/job_e{energy}_{job_idx}_%j.err
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
+#SBATCH --output={base_dir}/logs/job_e{energy}_{job_idx}.out
+#SBATCH --error={base_dir}/logs/job_e{energy}_{job_idx}.err
+#SBATCH --partition=lipq
 
 echo "Initializing simulation of e- of {energy} MeV (Job {job_idx})"
 {container_cmd} {macro_path}
-echo "Simulation completed."
+echo "Simulation completed."i
 """
     with open(slurm_filename, 'w') as f:
         f.write(slurm_content)
