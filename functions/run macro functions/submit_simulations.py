@@ -37,16 +37,26 @@ def generate_macro(energy, job_idx):
     
     # Macro file content
     macro_content = f"""
-/rat/db/set DETECTOR geo_file "geo/snoplus.geo"
+/rat/physics_list/OmitMuonicProcesses true
+/rat/physics_list/OmitHadronicProcesses true
 
 # /rat/physics_list/OmitCerenkov true
 # /rat/physics_list/Optical/OmitBoundaryEffects true
 
+/rat/db/set DETECTOR geo_file "geo/snoplus.geo"
+/rat/db/set GEO[inner_av] material "labppo_2p2_scintillator"
+
+
 /run/initialize
 
-# Exclude track info.
 /rat/proc prune
-/rat/procset prune "mc.track"
+/rat/procset prune "mc.track" # Exclude track info.
+/rat/proc frontend
+/rat/proc trigger
+/rat/proc eventbuilder
+/rat/proc count
+/rat/procset update 10
+/rat/proc calibratePMT
 
 /rat/proclast outroot
 /rat/procset file "{output_root}"
@@ -55,6 +65,7 @@ def generate_macro(energy, job_idx):
 /generator/add combo gun:fill
 /generator/vtx/set e- 0. 0. 0. {energy}
 /generator/pos/set inner_av
+/generator/rate/set 1
 
 /rat/run/start {events_per_job}
 exit
