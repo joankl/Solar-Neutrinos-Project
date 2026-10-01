@@ -43,7 +43,7 @@ def generate_macro(energy, job_idx):
 # /rat/physics_list/OmitCerenkov true
 # /rat/physics_list/Optical/OmitBoundaryEffects true
 
-/rat/db/set DETECTOR geo_file "geo/snoplus.geo"
+/rat/db/set DETECTOR geo_file "geo/snoplusnative.geo"
 /rat/db/set GEO[inner_av] material "labppo_2p2_scintillator"
 
 
