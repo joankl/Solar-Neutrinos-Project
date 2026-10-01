@@ -17,6 +17,7 @@ import subprocess
 energies_mev = [2.5, 3.0, 5.0]
 events_per_job = 1
 jobs_per_energy = 1  
+# At the end we will have events_per_job x jobs_per_energy events for each energy in energies_mev
 
 base_dir = "/lstore/sno/joankl/solar_analysis/mc_data/2p2_ppo/electrons/" # working directory
 
@@ -49,8 +50,6 @@ def generate_macro(energy, job_idx):
 
 /run/initialize
 
-/rat/proc prune
-/rat/procset prune "mc.track" # Exclude track info.
 /rat/proc frontend
 /rat/proc trigger
 /rat/proc eventbuilder

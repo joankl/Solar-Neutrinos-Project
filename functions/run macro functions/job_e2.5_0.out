@@ -1,0 +1,51 @@
+* ----------------------------------------------------------------
+* Running PROLOG for sno_e2.5_0 on Thu Oct  1 10:58:55 WEST 2026
+*    JOB_NAME                : sno_e2.5_0
+*    JOB_ID                  : 282938
+*    JOB_PARTITION           : lipq
+*    JOB_USER                : joankl
+*    JOB_ACCOUNT             : sno
+*    JOB_QOS                 : calo
+*    NODE_LIST               : wn237
+*    SLURM_NNODES            : 1
+*    SLURM_CPUS_ON_NODE      : 1
+*    SLURM_TASKS_PER_NODE    : 1
+*    SLURM_JOB_CPUS_PER_NODE : 1
+*    SLURM_MEM_PER_CPU       : 2500
+*    SUBMIT_HOST             : curie02.a.acnca.pt
+*    WORK_DIR                : /lstore/sno/joankl/solar_analysis/mc_data/2p2_ppo/electrons
+*    JOB_SCRIPT              : /lstore/sno/joankl/solar_analysis/mc_data/2p2_ppo/electrons//scripts/job_e2.5_0.sh
+* ----------------------------------------------------------------
+Initializing simulation of e- of 2.5 MeV (Job 0)
+This is SNO+ RAT 8.3.1 (master_base)
+Status messages enabled: info 
+Hostname: wn237.a.acnca.pt PID: 4006410
+Seeding random number generator: 1219768061
+DB::Constructor:: Setting PgSQL server to default...
+Loading default database tables...
+DB::LoadAll: Loaded 198 tables
+Initializing Processor block...
+Initializing run manager...
+Appending RAT extra units to the units table...
+Initializing Gsim...
+Initializing the visualization manager
+Initializing event producers...
+Initializing user interface...
+Running macro...
+DB: Setting DETECTOR[] geo_file to "geo\/snoplusnative.geo"
+
+DB: Setting GEO[inner_av] material to "labppo_2p2_scintillator"
+
+Detector::Construct: Constructing detector materials.
+Detector::Construct: Loading detector geometry from geo/snoplusnative.geo
+Detector::Construct: Loading pmt info from pmt/PMTINFO_sept2018.ratdb
+Detector::Construct: Constructing geometry.
+PhysicsList: all hadronic processes omitted
+PhysicsList::AddAttenuationAndCerenkov Omitting optical Mie scattering
+ProcBlockManager::SelectProcessor: Initializing processor prune
+Simulation completed.i
+
+* ----------------------------------------------------------------
+* Running EPILOG for sno_e2.5_0 on Thu Oct  1 10:59:34 WEST 2026
+* ----------------------------------------------------------------
+*     succeed slurm-282938.err

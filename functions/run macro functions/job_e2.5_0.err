@@ -1,0 +1,41 @@
+Warning in <TClassTable::Add>: class ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
+Warning in <TClassTable::Add>: class ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
+Warning in <TClassTable::Add>: class ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
+Warning in <TClassTable::Add>: class ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<float>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
+Warning in <TClassTable::Add>: class ROOT::Math::Cartesian3D<float> already in TClassTable
+Warning in <TClassTable::Add>: class ROOT::Math::Polar3D<float> already in TClassTable
+Geoutil::UpdateAVOffsetFromDB : AV_OFFSET_RUNTIME[].position field does not exist
+Geoutil::UpdateAVOffsetFromDB : Neither AV_OFFSET_RUNTIME nor GEO[av] position - default to 0 (no shift)
+RAT::GeoUtil::CheckPartialSplitAndUpdate : Nothing partial split update needed.
+ESCrossSec: Table ESXS[pnue_tot_nuebar] does not exist or is incomplete. Defaulting to analytic calculation
+ESCrossSec: Table ESXS[pnue_dif_nuebar] does not exist or is incomplete. Defaulting to analytic calculation
+ESCrossSec: Table ESXS[pnue_tot_nuebar] does not exist or is incomplete. Defaulting to analytic calculation
+ESCrossSec: Table ESXS[pnue_dif_nuebar] does not exist or is incomplete. Defaulting to analytic calculation
+ESCrossSec: Table ESXS[pnue_tot_numubar] does not exist or is incomplete. Defaulting to analytic calculation
+ESCrossSec: Table ESXS[pnue_dif_numubar] does not exist or is incomplete. Defaulting to analytic calculation
+ESCrossSec: Table ESXS[pnue_tot_numubar] does not exist or is incomplete. Defaulting to analytic calculation
+ESCrossSec: Table ESXS[pnue_dif_numubar] does not exist or is incomplete. Defaulting to analytic calculation
+DiscOpticalModel: Using new grey disc reflections (version 2)
+DiscOpticalModel: Using new grey disc reflections (version 2)
+GLG4Scint: No reemission spectrum for lab_scintillator for default scint process, setting equal to primary scintillation spectrum
+GLG4Scint: No reemission spectrum for labppo_2p2_bismsb_2p2_scintillator for default scint process, setting equal to primary scintillation spectrum
+GLG4Scint: No reemission spectrum for labppo_2p2_bismsb_scintillator for default scint process, setting equal to primary scintillation spectrum
+GLG4Scint: No reemission spectrum for labppo_6p0_TeDiol_1p5_bismsb_dda_scintillator_directors_review for default scint process, setting equal to primary scintillation spectrum
+GLG4Scint: No reemission spectrum for labppo_6p0_TeDiol_2p5_bismsb_dda_scintillator_directors_review for default scint process, setting equal to primary scintillation spectrum
+GLG4Scint: No reemission spectrum for labppo_bismsb_scintillator for default scint process, setting equal to primary scintillation spectrum
+GLG4Scint: No reemission spectrum for te_diol_dda_0p5_labppo_scintillator_Jan2018 for default scint process, setting equal to primary scintillation spectrum
+GLG4Scint: No reemission spectrum for te_diol_dda_0p5_labppo_scintillator_bisMSB_Jan2018 for default scint process, setting equal to primary scintillation spectrum
+Warning : Region <hqePMT_DiscOpticalRegion> does not have specific production cuts,
+even though it appears in the current tracking world.
+Default cuts are used for this region.
+Warning : Region <innerPMT_DiscOpticalRegion> does not have specific production cuts,
+even though it appears in the current tracking world.
+Default cuts are used for this region.
+Warning : Region <neckPMT_PMTOpticalRegion> does not have specific production cuts,
+even though it appears in the current tracking world.
+Default cuts are used for this region.
+Warning : Region <outerPMT_PMTOpticalRegion> does not have specific production cuts,
+even though it appears in the current tracking world.
+Default cuts are used for this region.
+PruneProc::SetPruneState: Can't set pruning status on unknown branch mc.track
+rat: Caught a return code.
