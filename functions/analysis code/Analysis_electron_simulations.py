@@ -136,14 +136,14 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
 
                 pmt_point = P3D(psup_id, pmtinfo.GetPosition(pmtCal.GetID()))
 
-                # Reconstructed 
+                # Reconstructed quantities
                 light_path.CalcByPosition(fit_pos_3d, pmt_point)
                 inner_av_distance_recons = light_path.GetDistInInnerAV()
                 av_distance_recons = light_path.GetDistInAV()
                 water_distance_recons = light_path.GetDistInWater()
                 transit_time_recons = group_velocity.CalcByDistance(inner_av_distance_recons, av_distance_recons, water_distance_recons)
 
-                # Simulated
+                # Simulated quantities
                 light_path.CalcByPosition(mc_pos_3d, pmt_point)
                 inner_av_distance_mc = light_path.GetDistInInnerAV()
                 av_distance_mc = light_path.GetDistInAV()
@@ -154,7 +154,6 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
 
                 residual_recons = pmt_time - transit_time_recons - fVertexTime
                 residual_mc = pmt_time - transit_time_mc - fVertexTime
-
 
                 # Obtener la posición del PMT de la base de datos
                 pmt_pos = pmtinfo.GetPosition(pmt_id)
