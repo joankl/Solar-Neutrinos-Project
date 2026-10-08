@@ -58,6 +58,7 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
     reader = ROOT.RAT.DU.DSReader(read_dir)
     
     for ievent in range(reader.GetEntryCount()):
+        #print(f'reading event #{ievent}')
         rDS = reader.GetEntry(ievent)
         rMC = rDS.GetMC()
         
@@ -65,6 +66,7 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
         mcid = rMC.GetMCID()
         mc_particle = rMC.GetMCParticle(0)
         energy_mc = mc_particle.GetKineticEnergy()
+        #print(f'event with energy {energy_mc} (MeV)')
         
         mc_pos_vec = mc_particle.GetPosition()
         pos_mc = [mc_pos_vec.x(), mc_pos_vec.y(), mc_pos_vec.z()]
@@ -76,6 +78,7 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
 
         # --- Iterar sobre los eventos reconstruidos (EV) ---
         for iev in range(rDS.GetEVCount()):
+            print(f'reading event #{iev}')
             rEV = rDS.GetEV(iev)
             evtid = rEV.GetGTID()
             
@@ -83,6 +86,8 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
             if not rEV.FitResultExists("scintFitter"): continue
             fResult = rEV.GetFitResult("scintFitter")
             if not fResult.GetValid() or fResult.GetVertexCount() < 1: continue
+
+            print('passed the fitters')
             
             fVertex = fResult.GetVertex(0) # Usar el primer vértice
             if not (fVertex.ContainsPosition() and fVertex.ContainsEnergy() and fVertex.ValidPosition() and fVertex.ValidEnergy()): continue

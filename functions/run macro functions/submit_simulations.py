@@ -57,6 +57,8 @@ def generate_macro(energy, job_idx):
 /rat/procset update 10
 /rat/proc calibratePMT
 
+/rat/proc scintFitter
+
 /rat/proclast outroot
 /rat/procset file "{output_root}"
 
