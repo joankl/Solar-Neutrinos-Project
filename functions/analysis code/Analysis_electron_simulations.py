@@ -114,20 +114,32 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
             for i_mc_pmt in range(rMC.GetMCPMTCount()):
                 mc_pmt = rMC.GetMCPMT(i_mc_pmt)
                 pmt_id = mc_pmt.GetID()
+
+
+                n_pe = mc_pmt.GetMCPECount()
+                if n_pe == 0:
+                    continue
+
+                has_cherenkov = False
+                has_scint = False
                 
-                hit_type = 0 # Default: Otro
-                
-                # Revisar los PE (Photoelectrons) en este PMT para determinar su historia
-                if mc_pmt.GetMCPECount() > 0:
-                    pe = mc_pmt.GetMCPE(0) # Usamos el primer fotón detectado en el PMT
-                    
-                    # 1 = Cherenkov (bit 1 según documentación, revisa el index real si falla)
-                    if pe.GetFromHistory(1): 
-                        hit_type = 1
-                    # 2 = Scintillation (bit 2 según documentación)
+            # Check the history of all photo_electrons on this PMT
+                for i_pe in range(n_pe):
+                    pe = mc_pmt.GetMCPE(i_pe)
+                    if pe.GetFromHistory(1):
+                        has_cherenkov = True
                     elif pe.GetFromHistory(2):
-                        hit_type = 2
-                
+                        has_scint = True
+                        
+                if has_cherenkov and has_scint:
+                    hit_type = 3  # Cherenkov + Scintillation
+                elif has_cherenkov and not has_scint:
+                    hit_type = 1  # Cherenkov puro
+                elif has_scint and not has_cherenkov:
+                    hit_type = 2  # Solo Scintillation
+                else:
+                    hit_type = 0  # Ruido u otro proceso
+                    
                 mc_pmt_dict[pmt_id] = hit_type
             
             # iteration over the callibrated hit PMTs
@@ -210,7 +222,7 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
     np.savez(save_dir, pmt_db=pmt_db, **data)
     print(f"Data saved to {save_dir}")
 
-    
+
 '''
 if __name__ == "__main__":
 
