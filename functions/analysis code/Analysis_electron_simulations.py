@@ -210,8 +210,12 @@ def extract_cherenkov_scint_data(read_dir, save_dir):
     np.savez(save_dir, pmt_db=pmt_db, **data)
     print(f"Data saved to {save_dir}")
 
-
+    
+'''
 if __name__ == "__main__":
+
     read_dir = "/lstore/sno/joankl/solar_analysis/mc_data/2p2_ppo/electrons/output_root/e_2.5MeV_0.root"
     save_dir = "/lstore/sno/joankl/solar_analysis/mc_data/2p2_ppo/electrons/results_npz/e_2.5MeV_0.npz"
+
     extract_cherenkov_scint_data(read_dir, save_dir)
+'''
