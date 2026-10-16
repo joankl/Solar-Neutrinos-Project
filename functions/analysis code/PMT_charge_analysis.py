@@ -41,7 +41,7 @@ def calculate_integrated_charge_per_event(npz_file, t_min=-4.0, t_max=1.0, save_
 
     # Identify the events: Use mcid and evtid to avoid mixing the events
     unique_events, event_indices = np.unique(
-        np.column_stack((mcid, evtid)), axis=0, return_index=True
+        np.column_stack((mcid_cut, evtid_cut)), axis=0, return_index=True
     )
 
     # Structure of the output/results
