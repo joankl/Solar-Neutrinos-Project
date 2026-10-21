@@ -6,8 +6,7 @@ import sys
 # --- Directory Config ---
 read_data_dir = '/share/neutrino/snoplus/MonteCarlo/FullFill_2p2_801/ScintFit_2p2B8_Solar_NueRun/'  #dir where the real data is
 sublist_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/file_name_list/ntuple/' #dir where the list  with the file names is
-save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ntuple_output/osc/ntuple_results/' #dir where we want the output_i/ be generated and save the results
-pselmaa_data_dir = '/lstore/sno/joankl/solar_analysis/flux_prediction/PSelmaa/output_files/pselmaa_test_sun_pee_B16_GS98_b8.txt'
+save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ntuple_output/unosc/ntuple_results/' #dir where to save results
 
 # Container config. for  Workers
 CONTAINER_SIF = "/lstore/sno/joankl/RAT/containers/rat_8.1.0.sif" # Container Directory
@@ -15,7 +14,7 @@ APPTAINER_EXEC = "apptainer" # Look apptainer in the wn node
 MY_LIBS = "/lstore/sno/joankl/my_pylibs/" # Complementar python libraries
 SCRIPT_DIR = os.getcwd() # Return the current directory path, where the script and rat_read_ntuples.py are.
 
-data_type = '8BNueOsc_PPO_ntuple'
+data_type = '8BNue_PPO_ntuple'
 os.makedirs(f'logs_{data_type}', exist_ok=True)
 
 def orden_natural(archivo):
@@ -43,8 +42,8 @@ if __name__ == "__main__":
 
         # Call the Analysis function and pass arguments through sys
         py_one_liner = ("import sys; "
-            "from rat_read_ntuplesMC_with_osc import extract_data; "
-            "extract_data(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])")
+            "from rat_read_ntuplesMC import extract_data; "
+            "extract_data(sys.argv[1], sys.argv[2], sys.argv[3])")
         
         # --- HERE IS THE MAGIC	 ---
 	# We'll write the script that apptainer will execute
@@ -56,7 +55,7 @@ if __name__ == "__main__":
             "source /root-bin/bin/thisroot.sh && "
             "source /rat/env.sh && "
             f"export PYTHONPATH=$PYTHONPATH:{MY_LIBS}:{SCRIPT_DIR} && "
-            f"python -c \"{py_one_liner}\" \"{read_data_dir}\" \"{sublist_path}\" \"{sub_save_dir}\" \"{pselmaa_data_dir}\""
+            f"python -c \"{py_one_liner}\" \"{read_data_dir}\" \"{sublist_path}\" \"{sub_save_dir}\""
         )
 
         # The line f"python3 -c \"{py_one_liner}\" \"{read_dir}\" \"{sublist_path}\" \"{sub_save_dir}\""
