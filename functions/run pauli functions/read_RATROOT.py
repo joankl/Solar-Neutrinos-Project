@@ -7,14 +7,15 @@ This script assumes already processed RATDS! It uses known
 reconstructe events, so doesnt employs fit checks or pile-up events!
 """
 
-import rat
-import ROOT
-from array import array
-import glob
-import os
 
+import os
+import time
 
 def extract_data(read_dir, file_txt_dir, save_dir):
+
+	import rat
+	import ROOT
+	from array import array
 
 	"""
 	Wrapper function to read and save the PMT info and events info.
@@ -96,8 +97,8 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	print('creating TTree Branches')
 	tree = ROOT.TTree("T", "output_summary")
 
-	energy = array('d', [0.0])
-	tree.Branch('energy', energy, 'energy/D')
+	energy_recons = array('d', [0.0])
+	tree.Branch('energy_recons', energy_recons, 'energy_recons/D')
 
 	energy_corr = array('d', [0.0])
 	tree.Branch('energy_corr', energy_corr, 'energy_corr/D')
@@ -123,11 +124,20 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	hit_pmtid = array('i',[0])
 	tree.Branch('hit_pmtid',hit_pmtid,'hit_pmtid/I')
 
-	hit_type = array('i',[0])
-	tree.Branch('hit_type',hit_type,'hit_type/I')
+	#hit_type = array('i',[0])
+	#tree.Branch('hit_type',hit_type,'hit_type/I')
+
+	hit_time = array('d',[0.])
+	tree.Branch('hit_time',hit_time,'hit_time/D')
 
 	hit_residual = array('d',[0.])
 	tree.Branch('hit_residual',hit_residual,'hit_residual/D')
+
+	hit_qhs = array('d',[0.])
+	tree.Branch('hit_qhs',hit_qhs,'hit_qhs/D')
+
+	hit_qhl = array('d',[0.])
+	tree.Branch('hit_qhl',hit_qhl,'hit_qhl/D')
 
 	# ------ Load Utility Tools ------
 	util = rat.utility()
@@ -156,8 +166,8 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 	# Energy Callibrator Definitions 
 	#print ('Takinkg Energy Calibrator Tool')
 	calibrator = util.GetReconCalibrator()
-	#MATERIAL_NAME = "labppo_2p2_scintillator"
-	MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
+	MATERIAL_NAME = "labppo_2p2_scintillator"
+	#MATERIAL_NAME = "labppo_2p2_bismsb_2p2_scintillator"
 	CORRECTION_VER = 3   
 	IS_DATA = True   # False if MC
 	av_id = P3D.GetSystemId("av")
@@ -214,12 +224,12 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 
 				# Reconstructed Energy
 				fVertex = fResult.GetVertex(0)
-				energy[0] = fVertex.GetEnergy()
-				print(f'event energy: {energy[0]}')
+				energy_recons[0] = fVertex.GetEnergy()
+				print(f'event energy: {energy_recons[0]}')
 
 				# Energy Correction
 				positionP3D = P3D(av_id, pos_xyz[0], pos_xyz[1], pos_xyz[2])
-				energy_correction = calibrator.CalibrateEnergyRTF(IS_DATA, energy[0], positionP3D, MATERIAL_NAME, CORRECTION_VER)
+				energy_correction = calibrator.CalibrateEnergyRTF(IS_DATA, energy_recons[0], positionP3D, MATERIAL_NAME, CORRECTION_VER)
 				energy_corr[0] = energy_correction
 
 				fVertexTime =fVertex.GetTime()
@@ -248,13 +258,17 @@ def extract_data(read_dir, file_txt_dir, save_dir):
 					
 					hit_pmtid[0] = pmtCal.GetID()
 					hit_residual[0] = residual
+					hit_time[0] = pmttime
+					hit_qhs[0] = pmtCal.GetQHS()
+					hit_qhl[0] = pmtCal.GetQHL()
 
 					tree.Fill()
 
 	tree.Write()
 	fout.Close()
 
-
+# ------- Run code in terminal -------
+'''
 if __name__ == "__main__":
 
 	#read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/bisMSB/Analysis20_bMR/ratds/run_evlist/Analysis20_bMR_r0000358052_s002_p005_runevelist_42.root'
@@ -264,7 +278,75 @@ if __name__ == "__main__":
 	fout_name = 'solar_analysis_real_data_2p2PPO.root'
 
 	extract_data(read_dir, file_txt_dir, save_dir + fout_name)
+'''
+# ------- Send code to SLURM -------
 
+if __name__ == '__main__':
+
+	read_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/ratds/run_evlist/'
+	file_txt_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/file_name_list/runevlist_ratds/sublist_0.txt'
+	save_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/root_files/'
+	fout_name = 'solar_analysis_real_data_2p2PPO.root'
+
+	data_type = "real_dat_2p2PPO_read_RATROOT"
+
+	CONTAINER_SIF = "/lstore/sno/joankl/RAT/containers/rat_8.3.1.sif"
+	APPTAINER_EXEC = "apptainer"
+	SCRIPT_DIR = os.getcwd()
+
+	os.makedirs(f'logs_{data_type}', exist_ok=True)
+
+	print(f'Sending Job')
+
+	script_name = f"run_read_RATROOT.sh"
+
+	py_cmd = (
+		"import sys; "
+		f"from read_RATROOT import extract_data; "
+		f"extract_data(sys.argv[1], sys.argv[2], sys.argv[3])"
+		)
+
+	command_inside_container = (
+		"source /usr/local/bin/geant4.sh && "
+		"source /root-bin/bin/thisroot.sh && "
+		"source /rat/env.sh && "
+		f"cd {SCRIPT_DIR} && "
+		f"python3 -c \"{py_cmd}\" \"{read_dir}\" \"{file_txt_dir}\" \"{save_dir + fout_name}\""
+		)
+	
+	script_cont = f"""#!/bin/bash
+#SBATCH --job-name={data_type}
+#SBATCH --output=logs_{data_type}/job.out
+#SBATCH --error=logs_{data_type}/job.err
+#SBATCH --partition=lipq
+#SBATCH --mem=6G
+
+echo "Running on host: $(hostname)"
+echo "Starting Apptainer for RAT"
+
+{APPTAINER_EXEC} exec \\
+	-B /share/neutrino/snoplus/ \\
+	-B /lstore \\
+	-B {SCRIPT_DIR} \\
+	{CONTAINER_SIF} \\
+	bash -c '{command_inside_container}'
+
+
+echo "Job finished"
+"""
+
+
+	with open(script_name, "w") as f:
+		f.write(script_cont)
+
+	# Enviar a la cola
+	print(f"Enviando job ...")
+	os.system(f"sbatch {script_name}")
+
+	# Borrar el script generado para no llenar la carpeta de basura (opcional)
+	# os.remove(script_name) 
+
+	time.sleep(0.5) # Pequeña pausa para no saturar al scheduler
 
 
 

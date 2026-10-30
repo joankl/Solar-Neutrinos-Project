@@ -9,10 +9,10 @@ import re
 import time
 
 # --- Configuración de Directorios ---
-read_dir = '/share/neutrino/snoplus/MonteCarlo/FullFill_2p2_801/ScintFit_2p2B8_Solar_NueRun/ratds/'
-files_txt_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/file_name_list/ratds/*.txt'
-save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/2p2_ppo/solar_8BNue/ratds_output/npz_files/'
-data_type = '8B_Nue_MC_PPO'
+read_dir = '/share/neutrino/snoplus/MonteCarlo/FullFill_bismsb_801/ScintFit_2p2ppo_2p2bismsB8_Solar_NueRun/ratds/'  # Directory where the RATDS ROOT files are
+files_txt_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/file_name_list/ratds/*.txt'  # Directory of the sublist files to be readen and submited for each job.                                                        # Pattern name of the input files
+save_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/'
+data_type = 'B8Nue_MC_bisMSB'
 
 CONTAINER_SIF = "/lstore/sno/joankl/RAT/containers/rat_8.3.1.sif"
 APPTAINER_EXEC = "apptainer"
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 #SBATCH --partition=lipq
 
 echo "Host: $(hostname)"
-echo "Iniciando contenedor Apptainer (RAT 8.3.1)..."
+echo "Iniciando contenedor Apptainer (RAT)"
 
 {APPTAINER_EXEC} exec \\
     -B /share/neutrino/snoplus/ \\

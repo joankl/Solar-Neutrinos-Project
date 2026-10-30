@@ -52,16 +52,16 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	'''
 
 	# ======== Data Cuts Settings ========
-	#energy_inf_cut = 2.5
-	#energy_sup_cut = 15
+	energy_inf_cut = 2.5
+	energy_sup_cut = 15
 
-	#posr_cut = 5500
+	posr_cut = 5500
 
 	time_res_inf_cut = -150
 	time_res_sup_cut = 250
 
-	#qhs_inf_cut = 2000
-	#qhs_sup_cut = 3400
+	qhs_inf_cut = 2000
+	qhs_sup_cut = 3400
 
 	# ===================================
 
@@ -83,7 +83,7 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	pmt_data = load_data[TTree_pmt_info_name]
 
 	#Observables to save
-	var_name_save_list = ['evtid', 'energy_corr', 'posr', 'hit_residual']
+	var_name_save_list = ['evtid', 'energy_corr', 'posr', 'hit_residual', 'hit_qhs', 'hit_qhl']
 
 	print('Loading Observables')
 
@@ -98,6 +98,8 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	observables['sun_dir'] = event_data['sun_dir'].array(library="np").astype(np.float32)
 	observables['hit_pmtid'] = event_data['hit_pmtid'].array(library="np").astype(np.int32)
 	observables['hit_residual'] = event_data['hit_residual'].array(library="np").astype(np.float32)
+	observables['hit_qhs'] = event_data['hit_qhs'].array(library="np").astype(np.float32)
+	observables['hit_qhl'] = event_data['hit_qhl'].array(library="np").astype(np.float32)
 
 	# ============= Count the initial Nº of events =============
 	evtid = observables['evtid']
@@ -187,10 +189,10 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 if __name__ == '__main__':
 
-	data_type = "real_data_bisMSB"
+	data_type = "real_data_2p2PPO"
 
-	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_output/root_files/solar_analysis_real_data_bisMSB.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/bisMSB/Analysis20_bMR/ratDS_output/np_files/'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/root_files/solar_analysis_real_data_2p2PPO.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/np_files/'
 
 	read_root(fin_dir, fout_dir, fcounter = 0)
 
