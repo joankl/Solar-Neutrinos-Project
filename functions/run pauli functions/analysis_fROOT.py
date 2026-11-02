@@ -60,9 +60,6 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	time_res_inf_cut = -150
 	time_res_sup_cut = 250
 
-	qhs_inf_cut = 2000
-	qhs_sup_cut = 3400
-
 	# ===================================
 
 	load_data = uproot.open(fin_dir)
@@ -100,6 +97,8 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	observables['hit_residual'] = event_data['hit_residual'].array(library="np").astype(np.float32)
 	observables['hit_qhs'] = event_data['hit_qhs'].array(library="np").astype(np.float32)
 	observables['hit_qhl'] = event_data['hit_qhl'].array(library="np").astype(np.float32)
+
+	print(f'PMT Charge with lenght {len(observables['hit_qhl'])}')
 
 	# ============= Count the initial Nº of events =============
 	evtid = observables['evtid']
