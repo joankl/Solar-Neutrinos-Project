@@ -14,9 +14,6 @@ Edits:
 			when analysizng MC data.
 			Include (-1) factor to sun direction to correctly account for the incoming
 			solar neutrinos direction.
-
-06/07/2026: remove unecessary cuts (energy, position) when running the code on already 
-			selected events.
 '''
 
 import uproot
@@ -60,6 +57,9 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	time_res_inf_cut = -150
 	time_res_sup_cut = 250
 
+	#qhs_inf_cut = 2000
+	#qhs_sup_cut = 3400
+
 	# ===================================
 
 	load_data = uproot.open(fin_dir)
@@ -80,7 +80,7 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	pmt_data = load_data[TTree_pmt_info_name]
 
 	#Observables to save
-	var_name_save_list = ['evtid', 'energy_corr', 'posr', 'hit_residual', 'hit_qhs', 'hit_qhl']
+	var_name_save_list = ['evtid', 'energy_corr', 'posr', 'hit_residual', 'hit_qhs', 'hit_qhl', 'hit_type']
 
 	print('Loading Observables')
 
@@ -97,8 +97,7 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	observables['hit_residual'] = event_data['hit_residual'].array(library="np").astype(np.float32)
 	observables['hit_qhs'] = event_data['hit_qhs'].array(library="np").astype(np.float32)
 	observables['hit_qhl'] = event_data['hit_qhl'].array(library="np").astype(np.float32)
-
-	print(f'PMT Charge with lenght {len(observables['hit_qhl'])}')
+	observables['hit_type'] = event_data['hit_type'].array(library="np").astype(np.int32)
 
 	# ============= Count the initial Nº of events =============
 	evtid = observables['evtid']
@@ -133,13 +132,13 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 
 	# general cut conditions
 	hit_pmt_id_condition = np.isin(observables['hit_pmtid'], pmt_id_valid)
-	#energy_condition = (observables['energy_corr'] >= energy_inf_cut) & (observables['energy_corr'] <= energy_sup_cut)
+	energy_condition = (observables['energy_corr'] >= energy_inf_cut) & (observables['energy_corr'] <= energy_sup_cut)
 	time_res_condition = (observables['hit_residual'] >= time_res_inf_cut) & (observables['hit_residual'] <= time_res_sup_cut)
 	#qhs_condition = (observables['hit_pmtQHS'] >= qhs_inf_cut) & (observables['hit_pmtQHS'] <= qhs_sup_cut)
-	#posr_condition = (observables['posr'] <= posr_cut)
+	posr_condition = (observables['posr'] <= posr_cut)
 
-	general_condition = hit_pmt_id_condition & time_res_condition 
-	del hit_pmt_id_condition, time_res_condition
+	general_condition = hit_pmt_id_condition & energy_condition & time_res_condition & posr_condition
+	del hit_pmt_id_condition, energy_condition, time_res_condition, posr_condition
 
 	# Apply the general cut conditions to observables
 	for var_name_i in observables.keys():
@@ -184,32 +183,23 @@ def read_root(fin_dir, fout_dir, fcounter = 0):
 	print('Analysis Done!')
 
 
-# ====== Section to read only one file ======
-
-if __name__ == '__main__':
-
-	data_type = "real_data_2p2PPO"
-
-	fin_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/root_files/solar_analysis_real_data_2p2PPO.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/np_files/'
-
-	read_root(fin_dir, fout_dir, fcounter = 0)
-
 # ===== Section to run all files within a Loop =====
 '''
 if __name__ == '__main__':
 
-	fin_dir = '/share/neutrino/snoplus/Data/FullFill_2p2/rat_801/PPO/ratds/run_evlist/*.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/real_data/2p2ppo/ratds_output/np_files/'
+	source_path = '/lstore/sno/joankl/.venv/bin/activate'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/np_files/'
 	flist = glob.glob(fin_dir)
 
 	for fi_dx, file_i in enumerate(flist):
 		print(f'reding file with file {fi_dx}: {file_i}')
-		read_root (f'{file_i}', f'{fout_dir}', fcounter = {fi_dx})
+		read_root (f'{file_i}', f'{fout_dir}', fcounter = fi_dx)
 
 	print('Finished!')
-'''
 
+
+'''
 # ====== Section to read only one file ======
 
 '''
@@ -223,23 +213,22 @@ if __name__ == '__main__':
 
 	read_root(fin_dir, fout_dir, fcounter = 0)
 
-'''
 
 '''
 # ====== Section to read various files and launch jobs ======
 
 if __name__ == '__main__':
 
-	data_type = "8B_Nue_MC_bisMSB"
+	data_type = "analysis_fROOT_8B_Nue_MC_PPO"
 
-	source_path = '/lstore/sno/joankl/.venv/bin/activate'
-	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratDS_output/root_files/*.root'
-	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/main_simulations/bisMSB/B8_solar_Nue/ratds_output/np_files/'
+	source_path = '/lstore/sno/joankl/.venv_py312/bin/activate'
+	fin_dir = '/lstore/sno/joankl/solar_analysis/mc_data/2p2_ppo/solar_8BNue/ratds_output/chunk_root/*.root'
+	fout_dir = '/lstore/sno/joankl/solar_analysis/mc_data/2p2_ppo/solar_8BNue/ratds_output/np_files/chunk_files/old/'
 	flist = glob.glob(fin_dir)
 
 	os.makedirs(f'logs_{data_type}', exist_ok=True)
 
-	for fi_dx, file_i in enumerate(flist):
+	for fi_dx, file_i in enumerate(flist[0:2]):
 
 		print(f'reding file with file {fi_dx}: {file_i}')
 
@@ -263,7 +252,12 @@ source {source_path}
 
 echo "Input file: {file_i}"
 
-python -c "{py_cmd}"
+echo "making copy of the original python directory ..."
+CP_PYTHON=$(which python)
+cp "$CP_PYTHON" "$TMPDIR/python"
+chmod +x "$TMPDIR/python"
+
+"$TMPDIR/python" -c "{py_cmd}"
 
 echo "Job finished"
 """
@@ -279,5 +273,7 @@ echo "Job finished"
 		# os.remove(script_name) 
 
 		time.sleep(0.5) # Pequeña pausa para no saturar al scheduler
+
+
+
 		
-'''
