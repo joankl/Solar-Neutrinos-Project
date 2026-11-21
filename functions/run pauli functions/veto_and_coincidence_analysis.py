@@ -10,6 +10,10 @@ and time of the found prompt and delay.
 
 Updates:
 - 23/07/2026 : Add the energy position-dependent correction
+- 18/11/2026 : Add the tracking of prompt and followers on HS finder. Add a condition
+               to decide when to perform coincidence analysis of coincidence events at low
+               energies.
+                
 '''
 
 import uproot
@@ -81,7 +85,7 @@ def ReconCalibrator(posx, posy, posz, energy):
     return energy_corr
 # ==========================================================
 
-def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
+def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir, coinc_analysis = False):
 
     '''
     Parameters:
@@ -116,12 +120,16 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
 
     # ----- HS and atmospheric Dictionary -----
     hs_dict = { 'counter': [],
-                'eventID': [],
-                'runID': []}
+                'eventID_prompt': [],
+                'runID_prompt': [],
+                'eventID_followers': [],
+                'runID_followers': [],}
 
     atm_dict = {'counter': [],
-                'eventID': [],
-                'runID': []}
+                'eventID_prompt': [],
+                'runID_prompt': [],
+                'eventID_followers': [],
+                'runID_followers': [],}
 
     # ----- Prompt and delayed data dictionaties -----
     prompt_coinc_dict = {var: [] for var in coincidence_var_save_name_list}
@@ -241,11 +249,11 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
 
 
     # Save the corresponding GTID and runID of the suspected HS and atm
-    hs_dict['eventID'].append(eventID[hs_ev_index].tolist())
-    hs_dict['runID'].append(runID[hs_ev_index].tolist())
+    hs_dict['eventID_prompt'].append(eventID[hs_ev_index].tolist())
+    hs_dict['runID_prompt'].append(runID[hs_ev_index].tolist())
 
-    atm_dict['eventID'].append(eventID[atm_ev_index].tolist())
-    atm_dict['runID'].append(runID[atm_ev_index].tolist())
+    atm_dict['eventID_prompt'].append(eventID[atm_ev_index].tolist())
+    atm_dict['runID_prompt'].append(runID[atm_ev_index].tolist())
 
     # ------ Loop on events to save the followers ------
     # (1) HS:
@@ -276,8 +284,8 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
             while (dt > 0) and (dt <= dt_hs_remove):
 
                 # Save the followers eventID and runID into dictionary
-                hs_dict['runID'].append(runID_next_hs)
-                hs_dict['eventID'].append(eventID_next_hs)
+                hs_dict['runID_followers'].append(runID_next_hs)
+                hs_dict['eventID_followers'].append(eventID_next_hs)
 
                 hs_index_to_remove.append(hs_next_idx)
 
@@ -324,8 +332,8 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
             while (dt > 0) and (dt <= dt_atm_remove):
 
                 # Save the followers eventID and runID into dictionary
-                atm_dict['runID'].append(runID_next_atm)
-                atm_dict['eventID'].append(eventID_next_atm)
+                atm_dict['runID_followers'].append(runID_next_atm)
+                atm_dict['eventID_followers'].append(eventID_next_atm)
 
                 atm_index_to_remove.append(atm_next_idx)
 
@@ -348,121 +356,84 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
     print(f'Number of atm events = {atm_counter}')
 
     # =========== Coincidence finder ===========
-    print('Performing coincidence analysis')
 
-    # ---- Cut the Hotspots and Atmospheric prompt and followers ----
-    full_index_to_remove = np.array(hs_index_to_remove + atm_index_to_remove, dtype = int)
-    full_index_to_remove = np.unique(full_index_to_remove)
+    if coinc_analysis:
+        print('Performing coincidence analysis')
 
-    #print(f'index to remove = {full_index_to_remove}')
+        # ---- Cut the Hotspots and Atmospheric prompt and followers ----
+        full_index_to_remove = np.array(hs_index_to_remove + atm_index_to_remove, dtype = int)
+        full_index_to_remove = np.unique(full_index_to_remove)
 
-    energy = np.delete(energy, full_index_to_remove)
-    time = np.delete(time, full_index_to_remove)
-    nhits = np.delete(nhits, full_index_to_remove)
-    posx = np.delete(posx, full_index_to_remove)
-    posy = np.delete(posy, full_index_to_remove)
-    posz = np.delete(posz, full_index_to_remove)
-    runID = np.delete(runID, full_index_to_remove)
-    eventID = np.delete(eventID, full_index_to_remove)
-    dcFlagged = np.delete(dcFlagged, full_index_to_remove)
+        #print(f'index to remove = {full_index_to_remove}')
 
-    # Change the reconstructed energy by the corrected energy
-    energy = ReconCalibrator(posx, posy, posz, energy)
+        energy = np.delete(energy, full_index_to_remove)
+        time = np.delete(time, full_index_to_remove)
+        nhits = np.delete(nhits, full_index_to_remove)
+        posx = np.delete(posx, full_index_to_remove)
+        posy = np.delete(posy, full_index_to_remove)
+        posz = np.delete(posz, full_index_to_remove)
+        runID = np.delete(runID, full_index_to_remove)
+        eventID = np.delete(eventID, full_index_to_remove)
+        dcFlagged = np.delete(dcFlagged, full_index_to_remove)
 
-    # ---- Mask Cut ----
+        # Change the reconstructed energy by the corrected energy
+        energy = ReconCalibrator(posx, posy, posz, energy)
 
-    mask_cut = 0xD82100000162C6
-    dcflag_condition = ((int(mask_cut) & dcFlagged) == int(mask_cut))
-    energy_condition = (energy >= 1.0)
-    nhits_condition = (nhits >= 20)
+        # ---- Mask Cut ----
 
-    condition = dcflag_condition & energy_condition & nhits_condition
+        mask_cut = 0xD82100000162C6
+        dcflag_condition = ((int(mask_cut) & dcFlagged) == int(mask_cut))
+        energy_condition = (energy >= 1.0)
+        nhits_condition = (nhits >= 20)
 
-    energy = energy[condition]
-    time = time[condition]
-    nhits = nhits[condition]
-    posx = posx[condition]
-    posy = posy[condition]
-    posz = posz[condition]
-    runID = runID[condition]
-    eventID = eventID[condition]
+        condition = dcflag_condition & energy_condition & nhits_condition
 
-    # ---- Coincidence Cuts ----
-    energy_prompt_inf_cut = 1.0
-    energy_prompt_sup_cut = 8.0
+        energy = energy[condition]
+        time = time[condition]
+        nhits = nhits[condition]
+        posx = posx[condition]
+        posy = posy[condition]
+        posz = posz[condition]
+        runID = runID[condition]
+        eventID = eventID[condition]
 
-    energy_delay_inf_cut = 1.0
-    energy_delay_sup_cut = 4.0
+        # ---- Coincidence Cuts ----
+        energy_prompt_inf_cut = 1.0
+        energy_prompt_sup_cut = 8.0
 
-    dt_inf_cut = 0.5
-    dt_sup_cut = 1000
+        energy_delay_inf_cut = 1.0
+        energy_delay_sup_cut = 4.0
 
-    dr_inf_cut = 0
-    dr_sup_cut = 2500
+        dt_inf_cut = 0.5
+        dt_sup_cut = 1000
 
-    # ---- Loop on events ----
+        dr_inf_cut = 0
+        dr_sup_cut = 2500
 
-    N_evs = energy.shape[0]
+        # ---- Loop on events ----
 
-    #print(f'Number of events = {N_evs}')
+        N_evs = energy.shape[0]
 
-    for ev_i in range(N_evs):
+        #print(f'Number of events = {N_evs}')
 
-        prompt_idx = ev_i
-        delay_idx = prompt_idx + 1
+        for ev_i in range(N_evs):
 
-        # Suspected Prompt observables
-        runID1 = runID[prompt_idx]
-        eventID1 = eventID[prompt_idx]
-        energy1 = energy[prompt_idx]
-        posx1 = posx[prompt_idx]
-        posy1 = posy[prompt_idx]
-        posz1 = posz[prompt_idx]
-        t1 = time[prompt_idx]
+            prompt_idx = ev_i
+            delay_idx = prompt_idx + 1
 
-        if not (energy_prompt_inf_cut <= energy1 <= energy_prompt_sup_cut):
-            continue
+            # Suspected Prompt observables
+            runID1 = runID[prompt_idx]
+            eventID1 = eventID[prompt_idx]
+            energy1 = energy[prompt_idx]
+            posx1 = posx[prompt_idx]
+            posy1 = posy[prompt_idx]
+            posz1 = posz[prompt_idx]
+            t1 = time[prompt_idx]
 
-        # Suspected delay observables
-        try:
-            runID2 = runID[delay_idx]
-            eventID2 = eventID[delay_idx]
-            energy2 = energy[delay_idx]
-            posx2 = posx[delay_idx]
-            posy2 = posy[delay_idx]
-            posz2 = posz[delay_idx]
-            t2 = time[delay_idx]
+            if not (energy_prompt_inf_cut <= energy1 <= energy_prompt_sup_cut):
+                continue
 
-            # Evaluate dt and dr between events
-            dx = posx2 - posx1
-            dy = posy2 - posy1
-            dz = posz2 - posz1
-
-            dr = np.sqrt(dx**2 + dy**2 + dz**2)
-            dt = t2 - t1
-
-        except IndexError:
-            continue
-
-        # Look for the coincidence
-        while (dt_inf_cut < dt <= dt_sup_cut):
-
-
-            if (dr_inf_cut <= dr <= dr_sup_cut) and (dt_inf_cut < dt <= dt_sup_cut) and (energy_delay_inf_cut <= energy2 <= energy_delay_sup_cut):
-                print(f'Pair found with dr = {dr} and dt = {dt}')
-
-                prompt_obs_lst = [runID1, eventID1, energy1, posx1, posy1, posz1, t1]
-                delay_obs_lst = [runID2, eventID2, energy2, posx2, posy2, posz2, t2]
-
-                # Save the coincidences in the coincidence dictionaries
-                for idy, var_name in enumerate(coincidence_var_save_name_list):
-                    prompt_coinc_dict[var_name].append(prompt_obs_lst[idy])
-                    delay_coinc_dict[var_name].append(delay_obs_lst[idy])
-
-                break
-            delay_idx += 1
-
-            # Look for the next suspected delay
+            # Suspected delay observables
             try:
                 runID2 = runID[delay_idx]
                 eventID2 = eventID[delay_idx]
@@ -481,11 +452,55 @@ def veto_and_coincidence_analysis(read_dir, file_txt_dir, save_dir):
                 dt = t2 - t1
 
             except IndexError:
-                break
+                continue
+
+            # Look for the coincidence
+            while (dt_inf_cut < dt <= dt_sup_cut):
+
+
+                if (dr_inf_cut <= dr <= dr_sup_cut) and (dt_inf_cut < dt <= dt_sup_cut) and (energy_delay_inf_cut <= energy2 <= energy_delay_sup_cut):
+                    print(f'Pair found with dr = {dr} and dt = {dt}')
+
+                    prompt_obs_lst = [runID1, eventID1, energy1, posx1, posy1, posz1, t1]
+                    delay_obs_lst = [runID2, eventID2, energy2, posx2, posy2, posz2, t2]
+
+                    # Save the coincidences in the coincidence dictionaries
+                    for idy, var_name in enumerate(coincidence_var_save_name_list):
+                        prompt_coinc_dict[var_name].append(prompt_obs_lst[idy])
+                        delay_coinc_dict[var_name].append(delay_obs_lst[idy])
+
+                    break
+                delay_idx += 1
+
+                # Look for the next suspected delay
+                try:
+                    runID2 = runID[delay_idx]
+                    eventID2 = eventID[delay_idx]
+                    energy2 = energy[delay_idx]
+                    posx2 = posx[delay_idx]
+                    posy2 = posy[delay_idx]
+                    posz2 = posz[delay_idx]
+                    t2 = time[delay_idx]
+
+                    # Evaluate dt and dr between events
+                    dx = posx2 - posx1
+                    dy = posy2 - posy1
+                    dz = posz2 - posz1
+
+                    dr = np.sqrt(dx**2 + dy**2 + dz**2)
+                    dt = t2 - t1
+
+                except IndexError:
+                    break
 
     # ====== Save the Dictionaries ======
-    dict_save_list = [hs_dict, atm_dict, prompt_coinc_dict, delay_coinc_dict]
-    dict_name_save = ['hs_dict', 'atm_dict', 'prompt_coinc_dict', 'delay_coinc_dict']
+    if coinc_analysis:
+        dict_save_list = [hs_dict, atm_dict, prompt_coinc_dict, delay_coinc_dict]
+        dict_name_save = ['hs_dict', 'atm_dict', 'prompt_coinc_dict', 'delay_coinc_dict']
+
+    else: 
+        dict_save_list = [hs_dict, atm_dict]
+        dict_name_save = ['hs_dict', 'atm_dict']
 
     for dict_i, dict_name in zip(dict_save_list, dict_name_save):
         with open(save_dir + dict_name + '.pkl', 'wb') as f:
